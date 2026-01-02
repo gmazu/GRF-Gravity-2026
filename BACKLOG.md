@@ -3,10 +3,15 @@
 ## Pendientes
 
 ### Alta prioridad
-- [ ] **Aumentar brillo del efecto** - El eCEL acumulado se ve muy atenuado
-- [ ] **Restaurar visibilidad de la red** - Se perdió la malla de fondo (océano base)
+- [x] **Aumentar brillo del efecto** - RESUELTO: ajustar opacidad en YAML
+- [x] **Restaurar visibilidad de la red** - RESUELTO: cambiar color_fondo a #7986cb
 
 ### Media prioridad
+- [ ] **YAMLs preconfigurados** - Crear configs listos para usar:
+  - `config_planeta.yaml` (Tierra, Marte, etc.)
+  - `config_sol.yaml` (estrellas)
+  - `config_agujero_negro.yaml` (singularidad)
+  - Evitar cambiar valores manualmente para cada objeto
 - [ ] Agregar escena TresCuerpos (problema 3 cuerpos)
 - [ ] Agregar escena AgujeroNegro (formación horizonte eventos)
 - [ ] Agregar escena ComparacionEdades (predicción falsable)
