@@ -1,20 +1,21 @@
-# Configuración eCEL Field - GravityeCEL v1.0.3
-# Modifica estos valores sin tocar el código
+# Configuracion eCEL Field - GravityeCEL v1.0.3
+# Modifica estos valores sin tocar el codigo
 
 intensidad:
   multiplicador: 0.75      # Factor de brillo (antes 0.25, ahora 3x)
-  opacidad_minima: 0.08    # Opacidad mínima del fondo
-  opacidad_maxima: 0.95    # Opacidad máxima cerca del núcleo
+  opacidad_minima: 0.08    # Opacidad minima del fondo
+  opacidad_maxima: 0.95    # Opacidad maxima cerca del nucleo
 
 malla:
-  espaciado: 0.12          # Distancia entre partículas
-  radio_particula: 0.012   # Tamaño de cada partícula
-  variacion: 0.04          # Variación aleatoria de posición
+  espaciado: 0.12          # Distancia entre particulas
+  radio_base: 0.025        # Radio base para calculo dinamico (como v1.0.1)
+  radio_minimo: 0.006      # Radio minimo de particula (como v1.0.1)
+  variacion: 0.04          # Variacion aleatoria de posicion
 
 nucleos:
   radio: 0.3               # Radio de los planetas
-  distancia_minima: 0.35   # Distancia mínima para cálculo 1/r²
+  distancia_minima: 0.35   # Distancia minima para calculo 1/r²
 
 animacion:
   duracion_movimiento: 4   # Segundos que tardan en acercarse
-  desplazamiento: 1.5      # Cuánto se mueven los núcleos
+  desplazamiento: 2.3      # Cuanto se mueven los nucleos (mas cerca sin tocarse)
