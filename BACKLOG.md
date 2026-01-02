@@ -5,8 +5,13 @@
 ### Alta prioridad
 - [x] **Aumentar brillo del efecto** - RESUELTO: ajustar opacidad en YAML
 - [x] **Restaurar visibilidad de la red** - RESUELTO: cambiar color_fondo a #7986cb
+- [ ] **Dos planetas acercándose** - Agregar segundo planeta y acercarlos para ver interacción de halos eCEL
+  - ¿Qué pasa cuando los halos se superponen?
+  - ¿Se empujan? ¿Se atraen por gradiente de presión?
+  - Visualizar el mecanismo de "gravedad" como empuje diferencial
 
 ### Media prioridad
+- [x] **Distribución homogénea eCEL** - RESUELTO v2.1.1: sin aleatorio, distancia mínima, sin espacios vacíos
 - [ ] **YAMLs preconfigurados** - Crear configs listos para usar:
   - `config_planeta.yaml` (Tierra, Marte, etc.)
   - `config_sol.yaml` (estrellas)
@@ -23,6 +28,22 @@
 ---
 
 ## Versiones
+
+### v2.1.3 (2026-01-02)
+- Copia de v2.1.2 con FadeOut del fondo después de generar halo
+- Solo queda visible: masa + halo eCEL organizado
+- Fondo desaparece para mostrar claramente el efecto
+
+### v2.1.2 (2026-01-02)
+- Efecto CASCADA: eCEL desplazado desplaza más eCEL
+- UN SOLO halo extendido (20 capas vs 12 en v2.1.1)
+- Gradiente suave con factor_cascada = 1.0 + 0.3 * exp(-capa/5)
+- Color gradiente: BLUE_B → PURPLE_A
+
+### v2.1.1 (2026-01-02)
+- Distribución HOMOGÉNEA (sin aleatorio)
+- Distancia mínima entre partículas
+- Sin espacios vacíos - estado de mínima entropía
 
 ### v2.1.0 (2026-01-02)
 - Nueva lógica de desplazamiento basada en densidad REAL
