@@ -1,15 +1,15 @@
-# Configuracion eCEL Field - GravityeCEL v1.0.3
+# Configuracion eCEL Field - GravityeCEL v1.0.4
 # Modifica estos valores sin tocar el codigo
 
 intensidad:
-  multiplicador: 0.75      # Factor de brillo (antes 0.25, ahora 3x)
-  opacidad_minima: 0.08    # Opacidad minima del fondo
+  multiplicador: 0.75      # Factor de brillo
+  opacidad_minima: 0.2     # Opacidad minima del fondo (aumentado para ver el campo)
   opacidad_maxima: 0.95    # Opacidad maxima cerca del nucleo
 
 malla:
   espaciado: 0.12          # Distancia entre particulas
   radio_base: 0.025        # Radio base para calculo dinamico (como v1.0.1)
-  radio_minimo: 0.006      # Radio minimo de particula (como v1.0.1)
+  radio_minimo: 0.006      # Radio minimo de particula (requerido por v1.0.3)
   variacion: 0.04          # Variacion aleatoria de posicion
 
 nucleos:
@@ -18,4 +18,10 @@ nucleos:
 
 animacion:
   duracion_movimiento: 4   # Segundos que tardan en acercarse
-  desplazamiento: 2.3      # Cuanto se mueven los nucleos (mas cerca sin tocarse)
+  desplazamiento: 2.3      # Cuanto se mueven los nucleos
+  aparicion_subita: true   # true: "cae" y genera onda | false: "aparece" suave
+  velocidad_onda: 2.5      # Velocidad de la onda expansiva
+
+perturbacion:
+  fuerza: 0.5              # Fuerza del desplazamiento de partículas
+  exponente_distancia: 1.5 # Cómo decae el efecto con la distancia
