@@ -221,15 +221,16 @@ Medir deflexión gravitacional en estrellas de masa conocida pero edades diferen
 | Archivo | Descripción |
 |---------|-------------|
 | `manim.py` | Versión original (estilo Einstein - curvatura) |
-| `GravityeCEL-v1.0.0.py` | Primera versión con campo denso 1/r² |
-| `GravityeCEL-v1.0.1.py` | Partículas más pequeñas |
-| `GravityeCEL-v1.0.2.py` | Campo fijo con iluminación dinámica |
-| `GravityeCEL-v1.0.3.py` | Malla completa + config YAML externo |
-| `GravityeCEL-v2.0.0.py` | Océano eCEL + efecto desplazamiento |
-| `GravityeCEL-v2.0.1.py` | Desplazamiento basado en DENSIDAD + 1/r² |
-| `GravityeCEL-v2.1.0.py` | **NUEVO: Problema 3 cuerpos + agujero negro** |
-| `config_ecel.yaml` | Configuración externa (intensidad, densidad) |
+| `GravityeCEL-v1.0.x.py` | Versiones iniciales (campo denso, malla, YAML) |
+| `GravityeCEL-v2.0.0.py` | Océano eCEL + efecto desplazamiento básico |
+| `GravityeCEL-v2.1.0.py` | Desplazamiento basado en DENSIDAD + 1/r² |
+| `GravityeCEL-v2.1.1.py` | Distribución HOMOGÉNEA (sin aleatorio, distancia mínima) |
+| `GravityeCEL-v2.1.2.py` | Efecto CASCADA (eCEL desplazado desplaza más eCEL) |
+| `GravityeCEL-v2.1.3.py` | **ACTUAL**: Cascada + FadeOut fondo (solo halo visible) |
+| `GravityeCEL-v2.2.x.py` | Experimentos con movimiento (wake/soliton) - WIP |
+| `config_ecel.yaml` | Configuración externa (intensidad, densidad, colores) |
 | `CONTEXT.md` | Reglas para desarrollo con IA |
+| `BACKLOG.md` | Tareas pendientes y versiones |
 | `README.md` | Este archivo |
 
 ---
@@ -238,17 +239,17 @@ Medir deflexión gravitacional en estrellas de masa conocida pero edades diferen
 
 ### Renderizar Animaciones
 ```bash
-# Preview rápido (baja calidad)
-manim -pql GravityeCEL-v2.1.0.py OceanoeCEL
+# Preview rápido (baja calidad) - VERSIÓN ACTUAL
+manim -pql GravityeCEL-v2.1.3.py OceanoeCEL
 
 # Alta calidad para presentación
-manim -pqh GravityeCEL-v2.1.0.py OceanoeCEL
+manim -pqh GravityeCEL-v2.1.3.py OceanoeCEL
 
-# Problema 3 cuerpos
-manim -pql GravityeCEL-v2.1.0.py TresCuerpos
+# Versión con fondo visible (sin fadeout)
+manim -pql GravityeCEL-v2.1.2.py OceanoeCEL
 
-# Formación agujero negro
-manim -pql GravityeCEL-v2.1.0.py AgujeroNegro
+# Distribución homogénea básica
+manim -pql GravityeCEL-v2.1.1.py OceanoeCEL
 ```
 
 ### Configuración sin tocar código
@@ -292,32 +293,34 @@ animacion:
 
 ## Escenas Disponibles
 
-### 1. OceanoeCEL (básica)
-Dos masas se acercan por gradiente presión. Muestra:
-- Océano eCEL de fondo
-- Desplazamiento según densidad
-- Flechas de presión
-- Movimiento por gradiente
+### 1. OceanoeCEL (v2.1.3 - actual)
+Masa desplaza eCEL con efecto cascada:
+- Océano eCEL de fondo uniforme (malla tipo red de tenis)
+- Masa aparece y desplaza eCEL según densidad
+- Distribución HOMOGÉNEA (mínima entropía)
+- Efecto CASCADA: eCEL desplazado desplaza más eCEL
+- Fondo desaparece → solo halo visible
+- Gradiente 1/r² desde superficie
 
-### 2. TresCuerpos (avanzada)
+### 2. DosPlanetas (próxima - en BACKLOG)
+Dos planetas acercándose:
+- Ver interacción de halos eCEL
+- ¿Se empujan? ¿Gradiente de presión?
+- Visualizar mecanismo de "gravedad"
+
+### 3. TresCuerpos (pendiente)
 Problema clásico 3-cuerpos resuelto con eCEL:
 - 3 masas interactuando
 - Suma vectorial desplazamientos
-- Trayectorias complejas
 - **Computacionalmente trivial** (vs GR)
 
-### 3. AgujeroNegro (extrema)
+### 4. AgujeroNegro (pendiente)
 Formación de horizonte eventos:
-- Masa aumentando densidad progresivamente
 - eCEL desplazándose completamente
 - ρ_eCEL → 0 en horizonte
-- Visualización singularidad mecánica (no matemática)
 
-### 4. ComparacionEdades (predicción)
-Dos estrellas, misma masa, diferente edad:
-- Estrella joven: poca curvatura
-- Estrella vieja: mucha curvatura
-- **Diferencia visible** → Test Einstein vs eCEL
+### 5. ComparacionEdades (pendiente)
+Predicción falsable: estrellas viejas curvan más luz
 
 ---
 
