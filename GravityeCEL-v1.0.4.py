@@ -35,16 +35,21 @@ class OceanGravity(Scene):
 
     def create_full_ecel_mesh(self):
         """
-        Crea malla UNIFORME de partículas eCEL cubriendo todo el espacio.
+        Crea malla UNIFORME de partículas eCEL con efecto viñeta.
         """
         field = VGroup()
 
         np.random.seed(42)
 
+        # Parámetros de la malla desde config
         espaciado = CONFIG['malla']['espaciado']
         radio_base = CONFIG['malla']['radio_base']
         variacion = CONFIG['malla']['variacion']
         opacidad_inicial = CONFIG['malla']['opacidad_inicial']
+        fuerza_vineta = CONFIG['malla'].get('fuerza_vineta', 0.0) # Usar .get para compatibilidad
+
+        # Dimensiones aproximadas de la pantalla para normalizar la distancia
+        max_dist = np.linalg.norm([7, 4]) 
 
         # Malla densa cubriendo toda la pantalla
         for x in np.arange(-7, 7, espaciado):
@@ -54,11 +59,18 @@ class OceanGravity(Scene):
                 y_var = y + np.random.uniform(-variacion, variacion)
                 pos = np.array([x_var, y_var, 0])
 
+                # Cálculo del efecto viñeta
+                dist_centro = np.linalg.norm(pos)
+                
+                # El factor de la viñeta va de 1 (centro) a (1 - fuerza) en los bordes
+                vignette_multiplier = np.clip(1 - fuerza_vineta * (dist_centro / max_dist), 0, 1)
+                final_opacity = opacidad_inicial * vignette_multiplier
+
                 dot = Dot(
                     point=pos,
                     radius=radio_base,
                     color=BLUE_E,
-                    fill_opacity=opacidad_inicial
+                    fill_opacity=final_opacity
                 )
                 # Guardamos la posición original para futuros cálculos de desplazamiento
                 dot.original_center = pos
