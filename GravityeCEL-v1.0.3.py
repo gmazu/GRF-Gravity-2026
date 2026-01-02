@@ -144,8 +144,13 @@ class OceanGravity(Scene):
         np.random.seed(42)
 
         espaciado = CONFIG['malla']['espaciado']
-        radio = CONFIG['malla']['radio_particula']
+        radio_base = CONFIG['malla']['radio_base']
+        radio_min = CONFIG['malla']['radio_minimo']
         variacion = CONFIG['malla']['variacion']
+
+        # Posiciones iniciales de los nucleos para calcular tamaño
+        c1 = np.array([-3, 0, 0])
+        c2 = np.array([3, 0, 0])
 
         # Malla densa cubriendo toda la pantalla
         for x in np.arange(-7, 7, espaciado):
@@ -154,8 +159,17 @@ class OceanGravity(Scene):
                 x_var = x + np.random.uniform(-variacion, variacion)
                 y_var = y + np.random.uniform(-variacion, variacion)
 
+                # Tamaño dinámico como v1.0.1: más grande cerca de núcleos
+                pos = np.array([x_var, y_var, 0])
+                dist1 = np.linalg.norm(pos[:2] - c1[:2])
+                dist2 = np.linalg.norm(pos[:2] - c2[:2])
+                dist_min = min(dist1, dist2)
+
+                # Radio dinámico: más grande cerca, más pequeño lejos
+                radio = max(radio_min, radio_base / (max(dist_min, 0.5) ** 0.8))
+
                 dot = Dot(
-                    point=np.array([x_var, y_var, 0]),
+                    point=pos,
                     radius=radio,
                     color=BLUE_E,
                     fill_opacity=0.02  # Opacidad inicial baja
