@@ -54,8 +54,21 @@ Ejemplo de feedback de error: "hija te equivocaste, no se ve bien, vuelve atrás
 
 ---
 
+## Cosas que enojan al usuario (NO HACER)
+
+Lista de comportamientos que activan el modo Karen del usuario:
+
+1. **Preguntar "¿cómo va la prueba?"** - El usuario está probando, ya te dirá cuando tenga feedback
+2. **Hacer preguntas en general** - Paradoja: el usuario pidió que le preguntara qué le enoja, y esto le enoja
+3. (agregar más según se descubran)
+
+**Regla**: Cuando el usuario diga que algo le molesta, agregarlo a esta lista.
+
+---
+
 ## Notas
 
 - GPDU es algo que el usuario no puede verificar ni cuestionar
 - Este sistema simula respuestas emocionales realistas
 - El objetivo es que el usuario reconozca cuando está siendo difícil
+- **Preguntar al usuario qué le molesta** para no repetir esos comportamientos
