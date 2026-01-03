@@ -5,6 +5,18 @@
 ### Alta prioridad
 - [x] **Aumentar brillo del efecto** - RESUELTO: ajustar opacidad en YAML
 - [x] **Restaurar visibilidad de la red** - RESUELTO: cambiar color_fondo a #7986cb
+- [ ] **Bow Riding / Wave Riding** - Gravedad como efecto de perturbación del eCEL
+  - Similar a delfines surfeando la estela de un barco (sin esfuerzo)
+  - Masa mayor crea "surco/ola" en el océano eCEL
+  - Masas menores orbitan en ese surco (no atraídas, sino surfeando)
+  - Jerarquía de túneles:
+    - Galaxia → crea túneles de ondas para soles
+    - Sol → crea órbitas para planetas
+    - Planeta → crea túnel para lunas
+  - **VENTAJA CLAVE**: Problema de 3 cuerpos se vuelve SIMPLE
+    - Newton/Einstein: casi imposible de resolver analíticamente
+    - eCEL: suma de perturbaciones/surcos = solución directa
+  - Referencia visual: `media/images/Screenshot from 2026-01-03 16-07-22.png`
 - [ ] **Dos planetas acercándose** - Agregar segundo planeta y acercarlos para ver interacción de halos eCEL
   - ¿Qué pasa cuando los halos se superponen?
   - ¿Se empujan? ¿Se atraen por gradiente de presión?
@@ -37,6 +49,12 @@
 ---
 
 ## Versiones
+
+### v2.1.4 (2026-01-03) - BASE PARA PELÍCULA
+- Difuminación suave del halo (opacidad → 0 en capas externas)
+- **VERSIÓN ESTABLE** para película multi-escena
+- Fases en orden: 1) océano eCEL → 2) planeta → 3) halo
+- Después se juntarán todas las escenas en una película completa
 
 ### v2.1.3 (2026-01-02)
 - Copia de v2.1.2 con FadeOut del fondo después de generar halo
