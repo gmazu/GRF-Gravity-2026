@@ -9,6 +9,15 @@
   - ¿Qué pasa cuando los halos se superponen?
   - ¿Se empujan? ¿Se atraen por gradiente de presión?
   - Visualizar el mecanismo de "gravedad" como empuje diferencial
+- [ ] **Rayo de luz que se dobla** - Lanzar fotón y que se curve por gradiente de densidad eCEL
+  - Luz viaja más lento en zonas de mayor densidad eCEL
+  - Se dobla hacia la masa (lensing gravitacional)
+  - Validación: deflexión 1.75 arcsec cerca del Sol (Eddington 1919)
+- [ ] **Movimiento bien hecho** - Rehacer v2.2.x desde cero
+  - Masa se mueve, océano eCEL queda estático
+  - Halo se recalcula según posición de la masa
+  - Efecto piscina: eCEL se abre adelante, se acomoda atrás
+  - v2.2.0 y v2.2.1 fallaron (el usuario se puso huevón)
 
 ### Media prioridad
 - [x] **Distribución homogénea eCEL** - RESUELTO v2.1.1: sin aleatorio, distancia mínima, sin espacios vacíos
