@@ -1,0 +1,37 @@
+# Configuración Le Sage - Lluvia de partículas
+# Modifica estos valores sin tocar el código
+
+# Velocidad de las partículas
+velocidad:
+  minima: 1.0          # Velocidad mínima (partículas lejanas) - MÁS LENTO
+  maxima: 2.0          # Velocidad máxima (partículas cercanas) - MÁS LENTO
+
+# Cantidad de partículas
+cantidad:
+  por_oleada_min: 12   # Mínimo por oleada - MÁS DENSA
+  por_oleada_max: 20   # Máximo por oleada - MÁS DENSA
+  intervalo: 0.5       # Segundos entre oleadas - MÁS ESPACIADO
+
+# Apariencia de las gotas
+gotas:
+  largo_min: 0.08      # Largo mínimo de la línea - MÁS CORTAS
+  largo_max: 0.2       # Largo máximo de la línea - MÁS CORTAS
+  grosor_min: 1        # Grosor mínimo
+  grosor_max: 2        # Grosor máximo - MÁS FINAS
+  opacidad_min: 0.15   # Opacidad mínima (lejanas) - MÁS SUAVE
+  opacidad_max: 0.45   # Opacidad máxima (cercanas) - MÁS SUAVE
+  color: "#ffff00"     # Amarillo (YELLOW)
+
+# Área de spawn
+area:
+  radio_spawn: 4.5     # Distancia desde el centro donde aparecen
+  limite_x_min: 0.5    # No pasar de este x (línea divisoria)
+
+# Duración de las fases
+duracion:
+  rotacion: 12         # Segundos para la vuelta completa - MÁS LENTO
+  isotropico: 8        # Segundos de lluvia isotrópica
+
+# Rotación (fase 1)
+rotacion:
+  num_pasos: 36        # Pasos para dar la vuelta (más = más suave, menos headbanging)
