@@ -12,7 +12,7 @@ universo:
 masa_actual:
   nombre: "Tierra"
   radio_visual: 0.8              # Radio en pantalla (unidades Manim)
-  densidad: 35.5                  # g/cm³ - controla cuanto eCEL se desplaza
+  densidad: 5.5                  # g/cm³ - controla cuanto eCEL se desplaza
   color: "#3498db"               # Azul tierra
 
 # Tabla de desplazamiento segun densidad (valores reales)
@@ -54,3 +54,25 @@ animacion:
   duracion_desplazamiento: 2.5   # Segundos efecto desplazamiento
   duracion_final: 3              # Segundos escena final
   fps: 30
+
+# Rayo de luz curvado por gradiente 1/r²
+luz:
+  habilitada: true
+  start: [-7.0, 2.0]             # Punto inicial del rayo
+  dir: [1.0, -0.2]               # Dirección inicial (se normaliza)
+  speed: 6.0                     # Velocidad (control de suavidad)
+  steps: 220                     # Puntos de integración
+  dt: 0.03                       # Paso temporal
+  k_curvatura: 1.2               # Intensidad de curvatura (gradiente)
+  min_dist_factor: 1.2           # Distancia mínima relativa al radio (evita choque)
+  colors_rainbow:
+    - "#ff2d2d"
+    - "#ff7a00"
+    - "#ffd200"
+    - "#57ff3b"
+    - "#2fd3ff"
+    - "#3b5bff"
+  stroke_width: 6
+  glow_widths: [14, 10, 8]
+  glow_opacities: [0.15, 0.2, 0.25]
+  core_opacity: 0.85
