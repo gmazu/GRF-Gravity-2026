@@ -64,7 +64,7 @@ luz:
   steps: 220                     # Puntos de integración
   dt: 0.03                       # Paso temporal
   k_curvatura: 1.2               # Intensidad de curvatura (gradiente)
-  min_dist_factor: 1.10         # Distancia mínima relativa al radio (evita choque)
+  min_dist_factor: 1.06         # Distancia mínima relativa al radio (evita choque)
   colors_rainbow:
     - "#ff2d2d"
     - "#ff7a00"
