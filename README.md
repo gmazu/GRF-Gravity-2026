@@ -216,6 +216,107 @@ Medir deflexión gravitacional en estrellas de masa conocida pero edades diferen
 
 ---
 
+## Física del Movimiento en Océano eCEL
+
+### Las 3 Fases del Movimiento
+
+Cuando un planeta se mueve a través del océano eCEL, pasa por 3 fases distintas:
+
+#### Fase 1: Inercia al Reposo (Stokes Drag)
+
+**Efecto:** Resistencia a empezar a moverse (como mover roca en miel)
+
+**Ecuación:**
+```
+F_reposo = -η × v × A
+
+Donde:
+η = viscosidad eCEL (1.0)
+v = velocidad inicial (0.1)
+A = área frontal
+```
+
+#### Fase 2: Aparición del Solitón (Bow Wave)
+
+**Efecto:** Formación de "ola" que viaja CON el planeta (como proa de barco)
+
+**Ecuación:**
+```
+ψ(x,t) = A × sech²[k(x - vt)]
+
+Donde:
+A = amplitud solitón (2.0)
+k = número de onda (1.5)
+v = velocidad planeta
+sech = secante hiperbólica
+```
+
+**Características:**
+- Forma de "joroba" frente al planeta
+- NO se dispersa (mantiene forma)
+- Viaja a velocidad constante
+
+#### Fase 3: Inercia al Movimiento (Drag Dinámico + Cola)
+
+**Efecto:** Resistencia a frenar + formación de "cola de cometa"
+
+**Ecuación:**
+```
+F_movimiento = -½ × ρ_eCEL × v² × C_d × A
+
+Donde:
+ρ_eCEL = densidad eCEL (100)
+v = velocidad actual (hasta 5.0)
+C_d = coeficiente arrastre (0.5)
+A = área sección transversal
+```
+
+**Asimetría:**
+- **Frente:** eCEL comprimido (alta presión, solitón)
+- **Atrás:** eCEL extendido (baja presión, cola)
+
+### Analogía: La Novia Corriendo
+
+Como una novia corriendo hacia el auto en su boda:
+- **Velo delante:** Comprimido contra su cara (solitón)
+- **Velo atrás:** Cola extendida (arrastre)
+- **Inercia inicial:** Cuesta empezar (Fase 1)
+- **Movimiento:** Velo se desplaza continuamente (Fase 2-3)
+
+### Efecto Cometa
+
+Los cometas cerca del Sol exhiben este comportamiento:
+- Cola NO causada solo por viento solar
+- **Auto-creada** por movimiento en océano eCEL
+- Cola = eCEL que "no alcanza" a volver a posición
+
+### Valores para Simulación Movimiento
+
+```python
+# Fase 1: Reposo
+viscosity_ecel = 1.0       # Viscosidad eCEL
+velocity_initial = 0.1     # Velocidad inicial lenta
+
+# Fase 2: Solitón
+amplitude_soliton = 2.0    # Altura "joroba"
+wave_number = 1.5          # Ancho solitón
+
+# Fase 3: Movimiento
+density_ecel = 100         # Densidad eCEL
+drag_coeff = 0.5           # Coeficiente arrastre (esférico)
+velocity_max = 5.0         # Velocidad máxima
+```
+
+### Ecuación Unificada
+
+```
+F_total = -ηv - k·sech²[k(x-vt)] - ½ρv²C_dA
+
+= Resistencia inicial + Ola + Arrastre cola
+```
+
+---
+
 ## Archivos del Proyecto
 
 | Archivo | Descripción |
