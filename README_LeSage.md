@@ -104,7 +104,12 @@ manim -pqh LeSage-v1.0.3.py LeSageComparacion
 
 ## Versiones
 
-### v1.0.3 (2026-01-03) - ACTUAL
+### v1.2.2.2 (2026-01-04) - ESTABLE
+- Heatmap con matplotlib + calentamiento por impactos
+- Configuración completa desde `config_lesage.yaml`
+- Final cálido tipo “infierno líquido” (sin azules)
+
+### v1.0.3 (2026-01-03)
 - Configuración externa via `config_lesage.yaml`
 - Velocidad, cantidad, apariencia ajustables sin tocar código
 - Lluvia más lenta y suave (tipo lluvia real, no guerra)
