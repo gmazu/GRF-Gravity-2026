@@ -59,12 +59,12 @@ animacion:
 luz:
   habilitada: true
   start: [-7.0, 2.0]             # Punto inicial del rayo
-  dir: [1.0, -0.2]               # Dirección inicial (se normaliza)
+  dir: [1.0, -0.1]               # Dirección inicial (se normaliza)
   speed: 6.0                     # Velocidad (control de suavidad)
   steps: 220                     # Puntos de integración
   dt: 0.03                       # Paso temporal
   k_curvatura: 1.2               # Intensidad de curvatura (gradiente)
-  min_dist_factor: 1.2           # Distancia mínima relativa al radio (evita choque)
+  min_dist_factor: 1.10         # Distancia mínima relativa al radio (evita choque)
   colors_rainbow:
     - "#ff2d2d"
     - "#ff7a00"
