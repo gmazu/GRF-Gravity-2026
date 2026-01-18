@@ -1,0 +1,4474 @@
+% language=us runpath=texruns:manuals/luametatex
+
+% Some of these are late arrivals and I have to use them first before they get
+% documented, others are rarely used so I'll mentikon them when I'm in the mood.
+%
+% node.direct.appendaftertail
+% node.direct.appendtocurrentlist
+% node.direct.prependbeforehead
+% node.direct.getcurrenttail
+% node.direct.setcurrenttail
+% node.direct.appendcurrenttail
+% node.direct.prependcurrenttail
+% node.direct.insertcurrenthead
+%
+% node.direct.findattributerange
+% node.direct.ignoremathskip
+% node.direct.makeextensible
+% node.direct.collapsing
+% node.direct.exchange
+% node.direct.getnormalizedline
+% node.direct.migrate
+% node.direct.repack
+% node.direct.reverse
+
+% node.direct.getnodes
+% getusage
+% hasusage
+% getusedattributes
+% setattributesinlist
+
+% list : node.direct.getanchors
+% list : node.direct.getbox
+% list : node.direct.setbox
+%
+% attributes : node.direct.unsetattributes
+% attributes : node.direct.patchattributes
+% attributes : node.direct.getusedattributes
+% attributes : node.direct.currentattributes
+%
+% node.direct.isitalicglyph
+% node.direct.issimilarglyph   (a, b) font data scales slant weight
+% node.direct.firstitalicglyph (n, checkkerntoo)
+
+% node.direct.lastnode
+% node.direct.naturalhsize
+% node.direct.getwordrange
+% node.direct.removefromlist
+% node.direct.serialized
+% node.direct.setanchors
+% node.direct.show
+% node.direct.softenhyphens
+%
+% node.direct.usedlist
+% node.direct.usesfont
+% node.direct.verticalbreak
+% node.direct.xscaled
+% node.direct.yscaled
+% node.direct.isloop -- undocumented
+
+% node.shared.size
+% node.shared.id
+% node.shared.getcachestate
+
+% node.hybrid.gluetostring
+
+% todo > noad getfield :
+%    hlist       : internal
+%    italic      : internal
+%    width       : internal
+%    height      : internal
+%    depth       : internal
+%    style       : get, maybe set
+%    scriptstate : internal
+%    analyzed    : internal
+%    mainclass   : get, maybe set
+%    leftclass   : get, maybe set
+%    rightclass  : get, maybe set
+%    leftslack   : internal
+%    rightslack  : internal
+%    subshift    : internal
+%    supshift    : internal
+%    primeshift  : internal
+%    scriptkern  : internal
+%    extraattr   : internal
+%
+% in due time, when we need some
+%
+% todo > par  getfield : adjacentdemerits adjdemerits adjustspacing adjustspacingshrink adjustspacingstep adjustspacingstretch              brokenpenalties brokenpenalty clubpenalties clubpenalty displaywidowpenalties displaywidowpenalty doublehyphendemerits emergencyextrastretch emergencyleftskip emergencyrightskip emergencystretch endpartokens exhyphenpenalty finalhyphendemerits fitnessclasses hangafter hangindent hsize hyphenationmode hyphenpenalty interlinepenalties interlinepenalty lastlinefit                      leftskip lefttwindemerits linebreakchecks linepenalty lineskip lineskiplimit looseness           orphanpenalties parfillleftskip parfillrightskip           parinitleftskip parinitrightskip parpasses parshape pretolerance prevgraf protrudechars                        rightskip righttwindemerits singlelinepenalty state toddlerpenalties tolerance widowpenalties widowpenalty
+% todo > par  setfield : adjacentdemerits adjdemerits adjustspacing adjustspacingshrink adjustspacingstep adjustspacingstretch baselineskip brokenpenalties brokenpenalty clubpenalties clubpenalty displaywidowpenalties displaywidowpenalty doublehyphendemerits emergencyextrastretch emergencyleftskip emergencyrightskip emergencystretch endpartokens exhyphenpenalty finalhyphendemerits fitnessclasses hangafter hangindent hsize hyphenationmode hyphenpenalty interlinepenalties interlinepenalty lastlinefit leftbox leftboxwidth leftskip lefttwindemerits linebreakchecks linepenalty lineskip lineskiplimit looseness middlebox orphanpenalties parfillleftskip parfillrightskip parindent parinitleftskip parinitrightskip parpasses parshape pretolerance prevgraf protrudechars rightbox rightboxwidth rightskip righttwindemerits singlelinepenalty state toddlerpenalties tolerance widowpenalties widowpenalty
+
+% \showenginevalues{alignmentcontextvalues}
+% \showenginevalues{appendlinecontextvalues}
+% \showenginevalues{automigrationvalues}
+% \showenginevalues{autoparagraphvalues}
+% \showenginevalues{getbalancestepoptionvalues}
+% \showenginevalues{getbalancecallbackvalues}
+% \showenginevalues{breakcontextvalues}
+% \showenginevalues{buildcontextvalues}
+% \showenginevalues{charactercontrolvalues}
+% \showenginevalues{charactertagvalues}
+% \showenginevalues{doublescriptoptionvalues}
+% \showenginevalues{discpartvalues}
+% \showenginevalues{glyphdiscvalues}
+% \showenginevalues{fillvalues}
+% \showenginevalues{flagvalues}
+% \showenginevalues{groupvalues}
+% \showenginevalues{hyphenationvalues}
+% \showenginevalues{iovalues}
+% \showenginevalues{kerneloptionvalues}
+% \showenginevalues{linebreakstatevalues}
+% \showenginevalues{mathclassoptionvalues}
+% \showenginevalues{mathcontrolvalues}
+% \showenginevalues{mathgluevalues}
+% \showenginevalues{mathoptionvalues}
+% \showenginevalues{mathparametervalues}
+% \showenginevalues{mathscriptordervalues}
+% \showenginevalues{mathscriptsmodevalues}
+% \showenginevalues{mathsurroundvalues}
+% \showenginevalues{mathvariantpresets}
+% \showenginevalues{mathvariantvalues}
+% \showenginevalues{modevalues}
+% \showenginevalues{mvloptionvalues}
+% \showenginevalues{normalizelinevalues}
+% \showenginevalues{normalizeparvalues}
+% \showenginevalues{packtypevalues}
+% \showenginevalues{pagecontextvalues}
+% \showenginevalues{parametermodevalues}
+% \showenginevalues{parcontextvalues}
+% \showenginevalues{parmodevalues}
+% \showenginevalues{partriggervalues}
+% \showenginevalues{prepoststatevalues}
+% \showenginevalues{protrusionboundaryvalues}
+% \showenginevalues{runstatevalues}
+% \showenginevalues{shapingpenaltiesvalues}
+% \showenginevalues{specialmathclassvalues}
+% \showenginevalues{specificationoptionvalues}
+% \showenginevalues{uleaderlocationvalues}
+% \showenginevalues{unitclassvalues}
+
+% This one (end 2025) took a while to update so an occasional treat helps then,
+% like watching Keith Carlock FULL (!) 20 MIN SOLO ‪@theukdrumshow‬ 2024. More
+% fun than documenting functions.
+
+\environment luametatex-style
+
+\startdocument[title=Nodes]
+
+\startsubject[title=Contents]
+    \setups[sectioncontents]
+\stopsubject
+
+\startsection[title={Introduction}]
+
+The (to be) typeset content is collected in a double linked list of so called
+nodes. A node is an array of values. When looked at from the \LUA\ end you can
+either seen them as \type [option=LUA] {<t:userdata>} or as \type [option=LUA]
+{<t:integer>}. In the case of userdata you access fields like this:
+
+\starttyping [option=LUA]
+local width = foo.width -- foo is userdata
+\stoptyping
+
+while the indexed variant uses:
+
+\starttyping [option=LUA]
+local width = nodes.direct.getwidth(foo) -- foo is an integer
+\stoptyping
+
+In \CONTEXT\ we mostly use the second variant but it's a matter of taste so users
+can you whatever they like most. When you print a userdata node you see something
+like this:
+
+\startlines
+\startluacode
+context.type(tostring(node.new("glyph"))) context.par()
+context.type(tostring(node.new("hlist"))) context.par()
+context.type(tostring(node.new("glue" ))) context.par()
+\stopluacode
+\stoplines
+
+The number in the middle is the one you would also see if you use the indexed
+approach and often these numbers are kind of large. A number \type {13295}
+doesn't mean that we have that many nodes. The engine has a large array of memory
+words (pairs of 32 bit integers) and a node is a slice of then with the index
+pointing to where we start. So, if we have a node that has 5 value pairs, the
+slice runs from \type {13295} upto \type {13299} that consume 40 bytes.
+
+In this chapter we introduce the nodes that are exposed to the user. We will
+discuss the relevant fields as well as ways to access them. Because there are
+similar fields in different nodes, we can share accessors.
+
+It is important to notice that not all fields that can be accessed (set and get)
+are under full user control. For instance, in math we have a \type {noad} type
+that is actually shared between several construct (like atoms, accents and
+fences) and not all parameters make sense for each of them. Some properties are
+set while the formula is assembled. It fits in the \LUAMETATEX\ concept to open
+up everything but abusing this can lead to side effects. It makes no sense to add
+all kind of safeguards against wrong or unintended usage because in the end only
+a few users will go that low level anyway.
+
+Not all fields mentioned are accessible in the userdata variant. It is also good
+to notice that some fields are fabricated, for instance \type {total} is the sum
+of \type {height} and \type {depth}.
+
+\stopsection
+
+\startsection[title={\LUA\ node representation}]
+
+As mentioned, nodes are represented in \LUA\ as user data objects with a variable
+set of fields or by a numeric identifier when requested and we showed that when
+you print a node user data object you will see these numbers.
+
+\startfourrows
+\ctxlua{moduledata.node.codes("types")}
+\stopfourrows
+
+You can ask for a list of fields with \type {node.fields} and for valid subtypes
+with \type {node.subtypes}. There are plenty specific field values and you can
+some idea about them by calling \type {tex.get*values()} which returns a table if
+numbers (exclusive numbers or bits). We use these to get the tables that are
+shown with each node type.
+
+There are a lot of helpers and below we show them per node type. In later
+sections some will come back organized by type of usage. Trivial getters and
+setters will not be discussed. It's good to know that some getters take more
+arguments where the second one can for instance trigger more return values. The
+number of arguments to a setter can also be more than a few. As with everything
+\LUAMETATEX\ the \CONTEXT\ sources can also be seen as  a reference.
+
+\stopsection
+
+\startsection[title={Main text nodes}]
+
+These are the nodes that comprise actual typesetting commands. A few fields are
+present in all nodes regardless of their type, these are: \type {next}, \type
+{id} and \type {subtype}. The \type {subtype} is sometimes just a dummy entry
+because not all nodes actually use the \type {subtype}, but this way you can be
+sure that all nodes accept it as a valid field name, and that is often handy in
+node list traversal. In the following tables \type {next} and \type {id} are not
+explicitly mentioned. Besides these three fields, almost all nodes also have an
+\type {attr} field, and there is a also a field called \type {prev}.
+
+\startsubsection[title={hlist and vlist, aka boxes}]
+
+These lists share fields and subtypes although some subtypes can only occur in
+horizontal lists while others are unique for vertical lists.
+
+\showenginefields   {hlist}
+\showenginesubtypes {hlist}
+\showenginevalues   {directionvalues}
+\showenginevalues   {listgeometryvalues}
+\showenginevalues   {listanchorvalues}
+\showenginevalues   {listsignvalues}
+
+The \type {shift} is a displacement perpendicular to the character (horizontal) or
+line (vertical) progression direction.
+
+The \type {orientation}, \type {woffset}, \type {hoffset}, \type {doffset}, \type
+{xoffset} and \type {yoffset} fields are special. They can be used to make the
+backend rotate and shift boxes which can be handy in for instance vertical
+typesetting. Because they relate to (and depend on the) the backend they are not
+discussed here (yet). The \type {pre} and \type {post} fields refer to migrated
+material in both list types, while the adjusted variants only make sense in
+horizontal lists.
+
+\showengineusagepernode{hlist}
+
+\stopsubsection
+
+\startsubsection[title={rule}]
+
+Contrary to traditional \TEX, \LUATEX\ has more subtypes subtypes because we also
+use rules to store reuseable objects and images. However, in \LUAMETATEX\ these
+are gone but we reserve these subtypes. Apart form the basic rules a lot is up to
+the backend.
+
+\showenginefields   {rule}
+\showenginesubtypes {rule}
+\showenginevalues   {ruleoptionvalues}
+
+The width, height and depth of regular rules defaults to the special value of
+$\cldcontext {tex . magicconstants . runningrule}$ which indicates a running rule
+that adapts its dimensions to the box that it sits in.
+
+The \type {left} and type {right} keys are somewhat special (and experimental).
+When rules are auto adapting to the surrounding box width you can enforce a shift
+to the right by setting \type {left}. The value is also subtracted from the width
+which can be a value set by the engine itself and is not entirely under user
+control. The \type {right} is also subtracted from the width. It all happens in
+the backend so these are not affecting the calculations in the frontend (actually
+the auto settings also happen in the backend). For a vertical rule \type {left}
+affects the height and \type {right} affects the depth. There is no matching
+interface at the \TEX\ end (although we can have more keywords for rules it would
+complicate matters and introduce a speed penalty.) However, you can just
+construct a rule node with \LUA\ and write it to the \TEX\ input. The \type
+{outline} subtype is just a convenient variant and the \type {transform} field
+specifies the width of the outline. The \type {xoffset} and \type {yoffset}
+fields can be used to shift rules. Because they relate to (and depend on the) the
+backend they are not discussed here (yet). Of course all this assumes that the
+backend deals with it. Internally fields with different names can use the same
+variable, depending on the subtype; dedicated names just make more sense.
+
+\showengineusagepernode{rule}
+
+\stopsubsection
+
+\startsubsection[title={insert}]
+
+This node relates to the \type {\insert} primitive and support the fields:
+
+\showenginefields {insert}
+
+Here the subtype indicates the class of the insert and that number is also used
+to access the box, dimen and skip registers that relate to the insert, if we
+use inserts in the traditional way.
+
+\showengineusagepernode{insert}
+
+\stopsubsection
+
+\startsubsection[title={mark}]
+
+This one relates to the \type {\marks} primitive and only has a few fields, one
+being a token list as field which is kind of rare.
+
+\showenginefields   {mark}
+\showenginesubtypes {mark}
+
+\showengineusagepernode{mark}
+
+\stopsubsection
+
+\startsubsection[title={adjust}]
+
+This node results from \type {\vadjust} usage:
+
+\showenginefields   {adjust}
+\showenginesubtypes {adjust}
+\showenginevalues   {adjustoptionvalues}
+
+\showengineusagepernode{vadjust}
+
+\stopsubsection
+
+\startsubsection[title={disc (discretionary)}]
+
+The \typ {\discretionary}, \typ {\explicitdiscretionary} and \typ
+{\automaticdiscretionary} primitives as well as the discretionary that comes from
+hyphenation all have the pre, post and replace lists. Because these lists have
+head and tail pointers the getters and setters handle this for you.
+
+\showenginefields   {disc}
+\showenginesubtypes {disc}
+\showenginevalues   {discoptionvalues}
+
+\showengineusagepernode{disc}
+
+\stopsubsection
+
+\startsubsection[title={math}]
+
+Math nodes represent the boundaries of a math formula, normally wrapped between
+\type {$} and \type {$}. The glue fields are only used when the \type {surround}
+field is zero.
+
+\showenginefields   {math}
+\showenginesubtypes {math}
+
+\showengineusagepernode{math}
+
+\stopsubsection
+
+\startsubsection[title={glue}]
+
+Skips are about the only type of data objects in traditional \TEX\ that are not a
+simple value. They are inserted when \TEX\ sees a space in the text flow but also
+by \type {\hskip} and \type {skip}. The structure that represents the glue
+components of a skip internally is called a \type {gluespec}. In \LUAMETATEX\ we
+don't use the spec itself but just its values.
+
+\showenginefields   {glue}
+\showenginesubtypes {glue}
+\showenginevalues   {glueoptionvalues}
+
+Note that we use the key \type {width} in both horizontal and vertical glue. This
+suited the \TEX\ internals well so we decided to stick to that naming.
+
+The effective width of some glue subtypes depends on the stretch or shrink needed
+to make the encapsulating box fit its dimensions. For instance, in a paragraph
+lines normally have glue representing spaces and these stretch or shrink to make
+the content fit in the available space. The \type {effectiveglue} function that
+takes a glue node and a parent (hlist or vlist) returns the effective width of
+that glue item. When you pass \type {true} as third argument the value will be
+rounded.
+
+\showengineusagepernode{glue}
+
+\stopsubsection
+
+\startsubsection[title={gluespec}]
+
+Internally \LUAMETATEX\ (like its ancestors) also uses nodes to store data that
+is not seen in node lists. For instance the state of expression scanning (\type
+{\dimexpr} etc.) and conditionals (\type {\ifcase} etc.) is also kept in lists of
+nodes. A glue, which has five components, is stored in a node as well, so, where
+most registers store just a number, a skip register (of internal quantity) uses a
+pointer to a glue spec node. It has similar fields as glue nodes, which is not
+surprising because in the past (and other engines than \LUATEX) a glue node also
+has its values stored in a glue spec. This has some advantages because often the
+values are the same, so for instance spacing related skips were not resolved
+immediately but pointed to the current value of a space related internal register
+(like \type {\spaceskip}). But, in \LUATEX\ and therefore \LUAMETATEX\ we do
+resolve these quantities immediately and we put the current values in the glue
+nodes.
+
+\showenginefields {gluespec}
+
+You will only find these nodes in a few places, for instance when you query an
+internal quantity. In principle we could do without them as we have interfaces
+that use the five numbers instead. For compatibility reasons we keep glue spec
+nodes exposed but this might change in the future. Of course there are no
+subtypes here because it's just a data store.
+
+\showengineusagepernode{gluespec}
+
+\stopsubsection
+
+\startsubsection[title={kern}]
+
+The \type {\kern} command creates such nodes but for instance the font and math
+machinery can also add them.
+
+\showenginefields   {kern}
+\showenginesubtypes {kern}
+
+\showengineusagepernode{kern}
+
+\stopsubsection
+
+\startsubsection[title={penalty}]
+
+The \type {\penalty} command is one that generates these nodes. There is not much
+to tell about them, apart from that in \LUAMETATEX\ they have options and a
+possible spread related \type {nepalty} field that is used internally.
+
+\showenginefields   {penalty}
+\showenginesubtypes {penalty}
+\showenginevalues   {penaltyoptionvalues}
+
+\showengineusagepernode{penalty}
+
+\stopsubsection
+
+\startsubsection[title={glyph}]
+
+These are probably the mostly used nodes and although you can push them in the
+current list with for instance \prm {char} \TEX\ will normally do it for you when
+it considers some input to be text. Glyph nodes are relatively large and have many
+fields.
+
+\showenginefields   {glyph}
+\showenginesubtypes {glyph}
+\showenginevalues   {glyphoptionvalues}
+\showenginevalues   {glyphdiscvalues}
+\showenginevalues   {discpartvalues}
+\showenginevalues   {glyphprotectionvalues}
+
+The \type {width}, \type {height} and \type {depth} values are read|-|only.
+In \LUATEX\ \type {expansion} has been introduced as part of the separation between
+front- and backend. It is the result of extensive experiments with a more
+efficient implementation of expansion. Early versions of \LUATEX\ already
+replaced multiple instances of fonts in the backend by scaling but contrary to
+\PDFTEX\ in \LUATEX\ we now also got rid of font copies in the frontend and
+replaced them by expansion factors that travel with glyph nodes. Apart from a
+cleaner approach this is also a step towards a better separation between front-
+and backend.
+
+% The \type {ischar} function checks if a node is a glyph node with a subtype still
+% less than 256. This function can be used to determine if applying font logic to a
+% glyph node makes sense. The value \type {nil} gets returned when the node is not
+% a glyph, a character number is returned if the node is still tagged as character
+% and \type {false} gets returned otherwise. When nil is returned, the id is also
+% returned. The \type {isglyph} variant doesn't check for a subtype being less
+% than 256, so it returns either the character value or nil plus the id. These
+% helpers are not always faster than separate calls but they sometimes permit
+% making more readable tests. The \type {usesfont} helpers takes a node
+% and font id and returns true when a glyph or disc node references that font.
+
+% The \type {isnextchar} and \type {isprevchar} return a next node, a character
+% code (or false) and an node id or next character code. The four \type {is}
+% checkers take a node and optionally a font, data, state, scale, xscale and yscale
+% value that are then checked.
+
+\showengineusagepernode{glyph}
+
+\stopsubsection
+
+\startsubsection[title={boundary}]
+
+This node relates to the \type {\noboundary}, \type {\boundary}, \type
+{\protrusionboundary}, \type {\wordboundary} etc. These are relative small nodes
+that determine what happens before and after them.
+
+\showenginefields   {boundary}
+\showenginesubtypes {boundary}
+\showenginevalues   {protrusionboundaryvalues}
+
+\showengineusagepernode{boundary}
+
+\stopsubsection
+
+\startsubsection[title={par}]
+
+In a traditional engine a paragraph starts with an indentation box. This actually
+guarantees that there is always a start node. In \LUATEX\ and \LUAMETATEX\ a
+paragraph starts with a par node but you can also find them later in the list. In
+\LUATEX\ it has little information, the direction and optional left- and right
+boxes, but in \LUAMETATEX\ it keeps the state. A fundamental difference between
+the engines is that in \LUAMETATEX\ we remember the various variables involved
+and you can only change them in the middle of a paragraph per explicit request.
+There can still be an indentation box after it but in \CONTEXT\ we configure the
+engine to use a skip instead. The par node is a pretty large one which also means that
+initializing and consulting it adds some complexity (and runtime).
+
+Because this node is inserted at the start of a paragraph, and expected to be
+there, you should not mess too much with this one. Because we took the local left
+and right box feature from \OMEGA\ they can also be inserted when \type
+{\local...} primitives are used, these boxes plus a few variables are bound to
+positions in the line and overload certain parameters that play a role in the
+line break (and later packaging) routine. ={par}
+
+\showenginefields[2]{par}
+\showenginesubtypes {par}
+
+Some of the features are a playground. For instance, \prm {localbreakpar} will
+insert a break point in a paragraph that acts like a \prm {par} but doesn't end
+one. The parameter subtype indicates (probably rarely used, if at all) \prm
+{localinterlinepenalty}, \prm {localbrokenpenalty}, \prm {localtolerance} or \prm
+{localpretolerance}. The local box subtype is used for \prm {localleftbox}, \prm
+{localmiddlebox}, \prm {localrightbox} and \prm {resetlocalboxes}. Normally the
+initial par node gets a vmode subtype, but when it's found later it gets tagged
+as a hmode subtype and treated the same. This is mostly a diagnostic recovery
+feature so best not rely on that. The math subtype is for experiments and
+possible future use so you can forget about that one. In general one can just
+ignore most of this and only check for the direction, if that makes sense, as in
+\LUATEX.
+
+\showengineusagepernode{par}
+
+\stopsubsection
+
+\startsubsection[title={dir}]
+
+Direction nodes mark parts of the running text that need a change of direction
+and the \type {\textdirection} command generates them. Contrary to \LUATEX\
+we only have two directions.
+
+\showenginefields   {dir}
+\showenginesubtypes {dir}
+
+\showengineusagepernode{dir}
+
+\stopsubsection
+
+\startsubsection[title={whatsit}]
+
+A whatsit node is a real simple one and it only has a subtype. It is even less
+than a user node (which it actually could be) and uses hardly any memory. What
+you do with it it entirely up to you: it's is real minimalistic. You can assign a
+subtype and it has attributes. It is all up to the user (and the backend) how
+they are handled.
+
+\showenginefields {whatsit}
+
+\showengineusagepernode{whatsit}
+
+\stopsubsection
+
+\startsubsection[title={attributelist}]
+
+This is the initial node of an attribute list that gets assigned to the attribute
+field of nodes that qualify for it. It points to a list of attributes nodes that
+have an index and value. Before October 2025 this was a special type of regular
+attribute node (we used subtypes to distinguish). Messing with these nodes can
+give side effects because they are reference counted.
+
+\showenginefields {attributelist}
+
+\showengineusagepernode{attributelist}
+
+\stopsubsection
+
+\startsubsection[title={attribute}]
+
+This is a small node but used a lot. When an attribute is set and travels with a
+node, we actually have a forward (only) linked list with a head node (see
+previous section) that keeps a reference count. These lists are (to be) sorted by
+attribute index. Normally you will {\em not} mess directly with these list
+because you can get unwanted side effects.
+
+\showenginefields {attribute}
+
+\showengineusagepernode{attribute}
+
+\stopsubsection
+
+\startsubsection[title={alignrecord}]
+
+This node can be encountered in alignments and will eventually become a \type
+{hlist} or \type {vlist} node. It therefore has the same size and fields as those
+nodes. However, the following fields are overloaded by other parameters: \type
+{woffset}, \type {hoffset}, \type {doffset}, \type {xoffset}, \type {yoffset},
+\type {orientation}, \type {pre} and \type {post}. Be careful!
+
+\showenginefields {alignrecord}
+
+\showengineusagepernode{alignrecord}
+
+\stopsubsection
+
+\startsubsection[title={unset}]
+
+This node can be encountered in alignments and will eventually become a \type
+{hlist} or \type {vlist} node. It therefore has the same size and fields as those
+nodes. However, the following fields are (at least temporarily) there and they
+use the slots of \type {woffset}, \type {hoffset}, \type {doffset} and \type
+{orientation}. Be careful!
+
+\showenginefields {unset}
+
+\showengineusagepernode{unset}
+
+\stopsubsection
+
+\stopsection
+
+\startsection[title={Math nodes}]
+
+\startsubsection[title=The concept]
+
+Many object fields in math mode are either simple characters in a specific family
+or math lists or node lists: \type {mathchar}, \type {mathtextchar}, {subbox}
+and \type {submlist} and \type {delimiter}. These are endpoints and therefore the
+\type {next} and \type {prev} fields of these these subnodes are unused.
+
+There is a subset of nodes dedicated to math called noads. These are used for
+simple atoms, fractions, fences, accents and radicals. When you enter a formula,
+\TEX\ creates a node list with regular (math) nodes and noads. Then it hands over
+the list the math processing engine. The result of that is a nodelist without
+noads. Most of the noads contain subnodes so that the list of possible fields is
+actually quite small. Math formulas are both a linked list and a tree. For
+instance in $e = mc^2$ there is a linked list \type {e = m c} but the \type {c}
+has a superscript branch that itself can be a list with branches.
+
+Eventually I might give a more detailed description of the differences between
+the five noad variants but for now the following has to do. One will quite likely
+not set that many fields at the \LUA\ end but running over the many sub lists can
+make sense. One has to know what the engine is doing anyway.
+
+\stopsubsection
+
+\startsubsection[title=noad]
+
+First, there are the objects (the \TEX book calls them \quote {atoms}) that are
+associated with the simple math objects: ord, op, bin, rel, open, close, punct,
+inner, over, under, vcenter. These all have the same fields, and they are
+combined into a single node type with separate subtypes for differentiation.
+However, before reading on you should realize that \LUAMETATEX\ has an extended
+math engine. We hale not only more classes, we also have many more keys in the
+nodes. We won't cover these details here.
+
+\showenginefields   {noad}
+\showenginesubtypes {noad}
+\showenginevalues   {noadoptionvalues}
+
+In addition to the subtypes (related to classes) that the engines knows of, there
+can be user defined subtypes. Not all fields make sense for every derives noad:
+\type {accent}, \type {fence}, \type {fraction} or \type {radical} but there we
+(currently) only mention the additional ones. These additional fields are taken
+from a pool of extra fields. Not all fields are always accessible for these nodes.
+
+\showengineusagepernode{noad}
+
+\stopsubsection
+
+\startsubsection[title=mathchar]
+
+The \type {mathchar} is the simplest subnode field, it contains the character and
+family for a single glyph object. The family eventually resolves on a reference
+to a font. Internally this nodes is one of the math kernel nodes.
+
+\showenginefields   {mathchar}
+%showenginesubtypes {mathchar}
+\showenginevalues   {kerneloptionvalues}
+
+\showengineusagepernode{mathchar}
+
+\stopsubsection
+
+\startsubsection[title=mathtextchar]
+
+The \type {mathtextchar} is a special case that you will not normally encounter,
+it arises temporarily during math list conversion (its sole function is to
+suppress a following italic correction). Internally this nodes is one of the math
+kernel nodes.
+
+\showenginefields   {mathtextchar}
+%showenginesubtypes {mathtextchar}
+\showenginevalues   {kerneloptionvalues}
+
+\showengineusagepernode{mathtextchar}
+
+\stopsubsection
+
+\startsubsection[title=subbox]
+
+These \type {subbox} subnode is used for subsidiary list items where
+the \type {list} points to a \quote {normal} vbox or hbox.
+
+\showenginefields   {subbox}
+%showenginesubtypes {subbox}
+
+\showengineusagepernode{subbox}
+
+\stopsubsection
+
+\startsubsection[title=submlist]
+
+In \type {submlist} subnode the \type {list} points to a math list that is yet to
+be converted. Their fields
+
+\showenginefields   {submlist}
+%showenginesubtypes {submlist}
+
+\showengineusagepernode{submlist}
+
+\stopsubsection
+
+\startsubsection[title={delimiter}]
+
+There is a fifth subnode type that is used exclusively for delimiter fields. As
+before, the \type {next} and \type {prev} fields are unused, but we do have:
+
+\showenginefields   {delimiter}
+%showenginesubtypes {delimiter}
+
+The fields \type {largechar} and \type {largefamily} can be zero, in that case
+the font that is set for the \type {smallfamily} is expected to provide the large
+version as an extension to the \type {smallchar}.
+
+\showengineusagepernode{delimiter}
+
+\stopsubsection
+
+\startsubsection[title={accent}]
+
+Accent nodes deal with stuff on top or below a math constructs.
+
+\showenginefields   {accent}
+\showenginesubtypes {accent}
+
+{\em For more fields see \type {noad}. At some point we might move fields from
+that list to here but only when the engine also gets that split.}
+
+\showengineusagepernode{accent}
+
+\stopsubsection
+
+\startsubsection[title={style}]
+
+These nodes are signals to switch to another math style. Currently the subtype is
+actually used to store the style but don't rely on that for the future.
+
+\showenginefields   {style}
+%showenginesubtypes {style}
+\showenginevalues   {mathstylenamevalues}
+\showenginevalues   {mathstylevalues}
+
+\showengineusagepernode{style}
+
+\stopsubsection
+
+\startsubsection[title={parameter}]
+
+These nodes are used to (locally) set math parameters. The subtype reflects a math style.
+
+\showenginefields {parameter}
+
+\showengineusagepernode{parameter}
+
+\stopsubsection
+
+\startsubsection[title={choice}]
+
+Most of the fields of this node are lists. Depending on the subtype different
+field names are used.
+
+\showenginefields   {choice}
+\showenginesubtypes {choice}
+
+\showengineusagepernode{choice}
+
+\stopsubsection
+
+\startsubsection[title={radical}]
+
+Radical nodes are the most complex as they deal with scripts as well as
+constructed large symbols. Warning: never assign a node list to the \type
+{nucleus}, \type {sub}, \type {sup}, \type {left}, or \type {degree} field unless
+you are sure its internal link structure is correct, otherwise an error can be
+triggered.
+
+\showenginefields   {radical}
+\showenginesubtypes {radical}
+
+{\em For more fields see \type {noad}. At some point we might move fields from
+that list to here but only when the engine also gets that split.}
+
+\showengineusagepernode{radical}
+
+\stopsubsection
+
+\startsubsection[title={fraction}]
+
+Fraction nodes are also used for delimited cases, hence the \type {left} and
+\type {right} fields among.
+
+\showenginefields   {fraction}
+\showenginesubtypes {fraction}
+
+{\em For more fields see \type {noad}. At some point we might move fields from
+that list to here but only when the engine also gets that split.}
+
+\showengineusagepernode{fraction}
+
+\stopsubsection
+
+\startsubsection[title={fence}]
+
+Fence nodes come in pairs but either one can be a dummy (this period driven empty
+fence). Some of these fields are used by the renderer and might get adapted in
+the process.
+
+\showenginefields   {fence}
+\showenginesubtypes {fence}
+
+{\em For more fields see \type {noad}. At some point we might move fields from
+that list to here but only when the engine also gets that split.}
+
+\showengineusagepernode{fence}
+
+\stopsubsection
+
+\stopsection
+
+\startsection[title=Helpers]
+
+\startsubsection[title={Introduction}]
+
+The userdata node variant has accessors on that object but when we use the
+indexed variant we use functions. As a consequence there are more helpers for
+direct nodes that for userdata nodes and many of them accept more arguments or
+have multiple return values. When you use \CONTEXT\ you will notice that instead
+of the \typ {node.direct} name space we use \type {nuts}. Among the reasons is
+that we had an intermediate variant in \CONTEXT\ \MKIV\ before we had these
+direct nodes. That variant was more efficient than the userdata accessors and
+triggered the introduction of direct nodes after which we dropped the
+intermediate variant. So, for \CONTEXT\ users direct nodes are nuts.
+
+What model you choose depends on your programming preferences. Using direct nodes
+is more efficient but if that pays back really depends on how frequently you
+access them. It is easy to blame a performance hit on \LUA\ (and interfacing to
+node lists) but don't underestimate the impact of inefficient macros or
+inefficient coding in general. Both models perform quite okay and in \LUAMETATEX\
+likely a bit better than in \LUATEX. \footnote {In the development history
+documents you can occasionally find explanations about how these mechanisms
+evolved. Already early in the development in \LUATEX\ we made sure that the
+overhead was acceptable.}
+
+\stopsubsection
+
+\startsubsection[title={Housekeeping}]
+
+This function returns an array that maps node id numbers to node type strings,
+providing an overview of the possible top|-|level \type {id} types.
+
+\starttyping[option=LUA]
+function node.types ( )
+    return <t:table> -- identifiers
+end
+\stoptyping
+
+This shows the names of the nodes and their internal numbers. Not all nodes are
+visible unless one goes really deep down into lists. The next two convert a name
+to its internal numeric representation and vise versa. The numbers don't relate
+to importance or some ordering; they just appear in the order that is handy for
+the engine. Commands like this are rather optimized so performance should be ok
+but you can of course always store the id in a \LUA\ number.
+
+\starttyping[option=LUA]
+function node.id ( <t:string> name )
+    return <t:integer> -- identifier
+end
+
+function node.type ( <t:integer> identifier )
+    return <t:string> -- name
+end
+\stoptyping
+
+This function returns an indexed table with valid field names for a particular
+type of node. Some fields (like \type {total}) can be constructed from other
+fields.
+
+\starttyping[option=LUA]
+function node.fields ( <t:integer> identifier | <t:string> name )
+    return <t:table> -- fields
+end
+\stoptyping
+
+The \type {hasfield} function returns a boolean that is only true if \type {n} is
+actually a node, and it has the field.This function probably is not that useful
+but some nodes don't have a \type {subtype}, \type {attr} or \type {prev} field
+and this is a way to test for that.
+
+\starttyping[option=LUA]
+function node.direct.hasfield ( <t:direct> n | <t:string> name )
+    return <t:boolean> -- okay
+end
+\stoptyping
+
+The \type {new} function creates a new node. All its fields are initialized to
+either zero or \type {nil} except for \type {id} and \type {subtype}. Instead of
+numbers you can also use strings (names). If you pass a second argument the
+subtype will be set too.
+
+\starttyping[option=LUA]
+function node.direct.new (
+    <t:number> id | <t:string> name
+)
+    return <t:direct.> -- node
+end
+
+function node.direct.new (
+    <t:number> id | <t:string> name,
+    <t:number> | <t:string> subtype
+)
+    return <t:direct.> -- node
+end
+\stoptyping
+
+As already has been mentioned, you are responsible for making sure that nodes
+created this way are used only once, and are freed when you don't pass them
+back somehow.
+
+The next one frees node \type {n} from \TEX's memory. Be careful: no checks are
+done on whether this node is still pointed to from a register or some \type
+{next} field: it is up to you to make sure that the internal data structures
+remain correct. Fields that point to nodes or lists are flushed too. So, when
+you used their content for something else you need to set them to nil first.
+
+\starttyping[option=LUA]
+function node.direct.free ( <t:direct> n )
+    return <t:direct> -- next
+end
+\stoptyping
+
+The \type {free} function returns the next field of the freed node, while the
+\type {flushnode} alternative returns nothing.
+
+\starttyping[option=LUA]
+function node.direct.flushnode ( <t:direct> n )
+    -- no return values
+end
+\stoptyping
+
+A list starting with node \type {n} can be flushed from \TEX's memory too. Be
+careful: no checks are done on whether any of these nodes is still pointed to
+from a register or some \type {next} field: it is up to you to make sure that the
+internal data structures remain correct.
+
+\starttyping[option=LUA]
+function node.direct.flushlist ( <t:direct> n )
+    -- no return values
+end
+\stoptyping
+
+When you free for instance a discretionary node, \type {flushlist} is applied to
+the \type {pre}, \type {post}, \type {replace} so you don't need to do that
+yourself. Assigning them \type {nil} won't free those lists!
+
+This creates a deep copy of node \type {n}, including all nested lists as in the case
+of a hlist or vlist node. Only the \type {next} field is not copied.
+
+\starttyping[option=LUA]
+function node.direct.copy ( <t:direct> n )
+    return <t:direct> -- copy
+end
+\stoptyping
+
+A deep copy of the node list that starts at \type {n} can be created too. If
+\type {m} is also given, the copy stops just before node \type {m}.
+
+\starttyping[option=LUA]
+function node.direct.copylist ( <t:direct> n )
+    return <t:direct> -- copy
+end
+
+function node.direct.copylist ( <t:direct> n, <t:direct> m )
+    return <t:direct> -- copy
+end
+\stoptyping
+
+We can also make a more direct copy of a node, which means that we don't make
+copy of for instance node lists assigned to a field. So you'd better know what
+you're doing.
+
+\starttyping[option=LUA]
+function node.direct.copyonly ( <t:direct> n )
+    return <t:direct> -- copy
+end
+\stoptyping
+
+Note that you cannot copy attribute lists this way. However, there is normally no
+need to copy attribute lists because when you do assignments to the \type {attr}
+field or make changes to specific attributes, the needed copying and freeing
+takes place automatically. When you change a value of an attribute {\em in} a
+list, it will affect all the nodes that share that list.
+
+\starttyping[option=LUA]
+function node.direct.write ( <t:direct> n )
+    -- no return values
+end
+\stoptyping
+
+This function will append a node list to \TEX's \quote {current list}. The node
+list is not deep|-|copied! There is no error checking either! You might need to
+enforce horizontal mode in order for this to work as expected.
+
+\stopsubsection
+
+\startsubsection[title={Common properties}]
+
+Here we discuss a few node field accessors that are common to nodes. In most
+cases an accessor looks at a node id and then returns or set something, just
+because field names (or properties) car similar. Here we mention some, the others
+are mentioned in following sections.
+
+\starttyping[option=LUA]
+function node.direct.getid ( <t:direct> n )
+    return <t:integer> id
+end
+
+function node.direct.getsubtype ( <t:direct> n )
+    return <t:integer> subtype
+end
+
+function node.direct.getidsubtype ( <t:direct> n )
+    return
+        <t:integer>, -- id
+        <t:integer>  -- subtype
+end
+\stoptyping
+
+You can't change the id of a node, but you can set the subtype:
+
+%  function node.direct.setsubtype
+
+% \starttyping[option=LUA]
+% function node.direct.setsubtype (
+%     <t:direct> n
+%     <t:direct> subtype
+% )
+%     return <t:integer> subtype
+% end
+% \stopsubsection
+
+Data fields are general purpose so these helpers come in variants:
+
+\starttyping[option=LUA]
+function node.direct.getdata ( <t:direct> glyph )
+    return <t:integer>  -- data
+end
+function node.direct.getdata ( <t:direct> rule )
+    return <t:integer> -- data
+end
+function node.direct.getdata ( <t:direct> glue )
+    return <t:integer>, <t:integer> -- data, reserved
+end
+function node.direct.getdata ( <t:direct> boundary )
+    return <t:integer>, <t:integer> -- data, reserved
+end
+function node.direct.getdata ( <t:direct> insert )
+    return <t:integer> -- identifier
+end
+function node.direct.getdata ( <t:direct> attribute )
+    return <t:integer>, <t:integer> -- index, value
+end
+function node.direct.getdata ( <t:direct> attributelist )
+    return <t:table> -- hash with values per index
+end
+function node.direct.getdata ( <t:direct> mark )
+    return <t:token> -- list
+end
+function node.direct.getdata ( <t:direct> mark, <t:true> asstring )
+    return <t:string> -- content
+end
+\stoptyping
+
+The companion helper sets values, with the exception of attribute (list) nodes;
+those are ignored.
+
+\starttyping[option=LUA]
+function node.direct.setdata ( <t:direct> node, ... ) end
+\stoptyping
+
+The direction field declares if we're going left-to-right or right-to-left.
+Direction nodes can have a subtype indicating it it's canceling a direction.
+
+\starttyping[option=LUA]
+function node.direct.setdirection ( <t:direct> node ) return <t:integer> end
+function node.direct.getdirection ( <t:direct> node, <t:integer> direction ) end
+\stoptyping
+
+Options are bitsets that control aspects of the rendering. Some subsystems set
+option bits too.
+
+\starttyping[option=LUA]
+function node.direct.getoptions ( <t:direct> node ) return <t:integer> end
+function node.direct.setoptions ( <t:direct> node, <t:integer> integer ) end
+\stoptyping
+
+Some nodes have a state, currently glyphs and boxes. Glyph states are up to the
+macro package, box states get set by the engine. When a second argument is passed
+to the getter, that state gets checked for.
+
+\starttyping[option=LUA]
+function node.direct.getstate (
+    <t:direct> n
+)
+    return <t:integer>
+end
+
+function node.direct.getstate (
+    <t:direct> n,
+    <t:integer> state
+)
+    return <t:boolean>
+end
+
+function node.direct.setstate (
+    <t:direct>  n,
+    <t:integer> state
+)
+    -- no return values
+end
+\stoptyping
+
+When engines support the so called \quote {synctex} feature, some nodes get a
+file id and line number assigned. In \LUATEX\ we made that more flexible
+so that one can come up with a more fine-tuned approach. In \LUAMETATEX\ we
+only provide the fields and then some helpers to set and get their values:
+
+\starttyping[option=LUA]
+function node.direct.getinputfields (
+    <t:direct> node
+)
+    return
+        <t:integer>, -- file
+        <t:integer>  -- line
+end
+
+function node.direct.setinputfields (
+    <t:direct>  node,
+    <t:integer> file,
+    <t:integer> line
+)
+    -- no return values
+end
+\stoptyping
+
+Only glyph, hlist, vlist and unset nodes have these fields and the engine sets
+them, whenever such a node is created, but only when a mode value is larger than
+zero. A value of one makes that list nodes get set, a larger value also makes
+that glyphs are set. We don't fo into details here but in the \type {tex} library
+we have \typ {setinputstatemode}, \typ {getinputstatemode}, \typ
+{setinputstatefile}, \typ {getinputstatefile}, \typ {forceinputstatefile}, \typ
+{forceinputstateline}, \typ {setinputstateline} and \typ {getinputstateline} to
+control what values get assigned. The engine itself has no knowledge of this
+synchronization feature, the macro package defines it.
+
+This function checks of a glyph, rule, box or leader content has a width, height
+and/or depth set to a non-zero value.
+
+\starttyping[option=LUA]
+function node.direct.hasdimensions ( <t:direct> )
+    return <t:boolean>
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Geometry}]
+
+Glyphs, lists and rules can have offsets. For practical reasons the helper that
+accesses these also deal with related properties.
+
+\starttyping[option=LUA]
+function node.direct.getoffsets ( <t:direct> glyph )
+    return
+        <t:integer>, -- xoffset
+        <t:integer>, -- yoffset
+        <t:integer>, -- left
+        <t:integer>, -- right
+        <t:integer>  -- raise
+end
+
+function node.direct.getoffsets ( <t:direct> list )
+    return
+        <t:integer>, -- xoffset
+        <t:integer>  -- yoffset
+end
+
+function node.direct.getoffsets ( <t:direct> rule )
+    return
+        <t:integer>, -- xoffset
+        <t:integer>, -- yoffset
+        <t:integer>, -- left,
+        <t:integer>, -- right
+        <t:integer>, -- dashon
+        <t:integer>  -- dashoff
+end
+\stoptyping
+
+The setter sets these properties when a number is passed:
+
+\starttyping[option=LUA]
+function node.direct.setoffsets (
+    <t:direct>  glyph,
+    <t:integer> xoffset,
+    <t:integer> yoffset,
+    <t:integer> left,
+    <t:integer> right,
+    <t:integer> raise
+)
+    -- no return values
+end
+
+function node.direct.setoffsets (
+    <t:direct>  list,
+    <t:integer> xoffset,
+    <t:integer> yoffset
+)
+    -- no return values
+    return
+end
+
+function node.direct.setoffsets (
+    <t:direct>  rule
+    <t:integer> xoffset,
+    <t:integer> yoffset,
+    <t:integer> left,
+    <t:integer> right,
+    <t:integer> dashon,
+    <t:integer> dashoff
+)
+    -- no return values
+end
+\stoptyping
+
+A bit more exclusive are margins. For glyphs these can act like font kerns, for
+rules they extend the rule.
+
+\starttyping[option=LUA]
+function node.direct.addmargins (
+    <t:direct>  glyph,
+    <t:integer> left,
+    <t:integer> right,
+    <t:integer> raise
+)
+    -- no return values
+end
+
+function node.direct.addmargins (
+    <t:direct>  rule,
+    <t:integer> left,
+    <t:integer> right
+)
+    -- no return values
+end
+\stoptyping
+
+For glyphs we also have the following variant, that scales according to the glyph
+scales.
+
+\starttyping[option=LUA]
+function node.direct.addxymargins (
+    <t:direct>  glyph,
+    <t:integer> left,
+    <t:integer> right,
+    <t:integer> raise
+)
+    -- no return values
+end
+\stoptyping
+
+These operate on glyphs, boxes and rules:
+
+\starttyping[option=LUA]
+function node.direct.addxoffset ( <t:direct> n, <t:integer> amount ) end
+function node.direct.addyoffset ( <t:direct> n, <t:integer> amount ) end
+\stoptyping
+
+List, insert, mark and adjust nodes have an index field.
+
+\starttyping[option=LUA]
+function node.direct.getindex ( <t:direct> n ) return <t:integer> end
+function node.direct.setindex ( <t:direct> n, <t:integer> i ) end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Fonts and characters}]
+
+The most significant carrier of information is the glyph node. In \LUAMETATEX\ it
+is also one of the largest nodes in terms of fields. As with any engine, it has a
+font and character field. In \LUAMETATEX\ a glue node can also have a font set
+and of course math characters and delimiters have this property too.
+
+\starttyping[option=LUA]
+function node.direct.getfont (
+    <t:direct> n
+)
+    return <t:integer> -- id
+end
+
+function node.direct.setfont (
+    <t:direct>  n,
+    <t:integer) id
+)
+    -- no return values
+end
+
+function node.direct.setfont (
+    <t:direct>  n,
+    <t:integer) id,
+    <t:integer) slot
+)
+    -- no return values
+end
+\stoptyping
+
+Here we see that when we set a set a font we can also set a character, because
+that's often what goes together. The character field setter and getter is simple.
+The term character is actually neutral although in practice it's a \UNICODE\
+slot, just because \UTF8\ is the input encoding. But in the end it's just an
+index into a font table.
+
+\starttyping[option=LUA]
+function node.direct.getchar ( <t:direct> n ) return <t:integer> end
+function node.direct.setchar ( <t:direct> n, <t:integer> slot ) end
+\stoptyping
+
+We can also get the font and character in one go; watch the order! Here for a
+math character (simple noads are also handled here) you also get back the family:
+
+\starttyping[option=LUA]
+function node.direct.getcharspec (
+    <t:direct> n -- glyph or rule
+)
+    return
+        <t:integer>, -- character
+        <t:integer>  -- font
+end
+
+function node.direct.getcharspec (
+    <t:direct> n -- math characer, delimiter, simple noad
+)
+    return
+        <t:integer>, -- character
+        <t:integer>,  -- font
+        <t:integer>  -- family
+end
+\stoptyping
+
+When working on the \quote {improved} math processing capabilities in the engine
+we picked up on the idea to carry around some more information. This is why we
+also have:
+
+\starttyping[option=LUA]
+function node.direct.setchardict (
+    <t:direct>  n,
+    <t:integer> properties,
+    <t:integer> group,
+    <t:integer> index
+)
+        -- no return value
+end
+\stoptyping
+
+These apply to glyphs, math characters and delimiters. Currently their meaning
+depends on the macro package but we might eventually bring som more into the
+engine. One reason for putting information in the nodes instead of relying on
+\LUA\ is that in math characters become glyphs and some information travels
+through the system.
+
+The getter is a bit more extensive; in the case of math we get the font of the
+family.
+
+\starttyping[option=LUA]
+function node.direct.setchardict (
+    <t:direct> n
+)
+    return
+        <t:integer>, -- properties,
+        <t:integer>, -- group,
+        <t:integer>, -- index,
+        <t:integer>, -- font,
+        <t:integer>  -- character
+end
+\stoptyping
+
+Some nodes and a data field that a macro package can use anyway it wants. Of
+course using it makes sharing code between macro packages hard but in practice
+(certainly at this level) there is no sharing going on anyway. A value of \type
+{-0x7FFFFFFF} is equivalent to the field not being set; this is compatible with
+attributes.
+
+\starttyping[option=LUA]
+function node.direct.getglyphdata ( <t:direct> n ) return <t:integer> end
+function node.direct.setglyphdata ( <t:direct> n, <t:integer> d) end
+\stoptyping
+
+When you create a node in \LUA\ you also need to set properties, like a font
+and character. However, especially in \CONTEXT, quite some behavior is also
+determined by for instance \prm {glyphoptions}, \prm {glyphscale} and alike.
+This is why we have two creator functions that set the font and character but
+also set the fields according to the current state we're in.
+
+\starttyping[option=LUA]
+function node.direct.newtextglyph ( <t:integer> f, <t:integer> c ) end
+function node.direct.newmathglyph ( <t:integer> f, <t:integer> c ) end
+\stoptyping
+
+For now we keep this one for sentimental reasons, although its application is
+rather specific: in a sequence of pre- and postscripts to nuclei. The first
+variant creates a new one and optionally sets an attribute list. The second
+variant takes an existing node and tags it as continuation setting properties
+according the current math setup. This function was added for prototyping new
+functionally and lost its purpose; the engine knows better what to do.
+
+\starttyping[option=LUA]
+function node.direct.newcontinuationatom (
+    <t:boolean> new,
+    <t:direct>  attrlist
+)
+    return <t:direct>
+end
+
+function node.direct.newcontinuationatom (
+    <t:direct> existing
+)
+    -- no return value
+end
+\stoptyping
+
+We mentioned glyph options, so here is a test for that, using a option already
+mentioned in a previous section and that are normally set with \prm
+{glyphoptions}:
+
+\starttyping[option=LUA]
+function node.direct.hasglyphoption ( <t:direct> g, <t:integer> o )
+    return <t:boolean>
+end
+\stoptyping
+
+We now arrived at some rather special helpers. Although the engine is basically
+neutral with respect to macro packages and how they deal with fonts, we took the
+liberty to add some features that fit well in the way \CONTEXT\ deals with these
+matters; like it or not.
+
+When we process the input characters in a node list according to the way a font
+likes it to be rendered, we have two states: unprotected and protected. We start
+out unprotected and when done set the protection flag on the glyph nodes so that
+later on we can check if processing already happened. In functions that basically
+do the same we use \type {char} for unprotected and \typ {glyph} otherwise.
+
+For instance, we have two helpers and their match depends on the protection set:
+
+\starttyping[option=LUA]
+function node.direct.firstchar  ( <t:direct> n ) return <t:direct> | <t:nil> end
+function node.direct.firstglyph ( <t:direct> n ) return <t:direct> | <t:nil> end
+\stoptyping
+
+In \CONTEXT\ once a node list has gone through the font handler, we have glyphs,
+so if one (at all) add some user pass over the list and use these helpers, one
+should also be aware of the moment it happens. So this is a typical case where
+macro packages differ and choose different approaches.
+
+\starttyping[option=LUA]
+function node.direct.ischar (
+    <t:direct>  n, <t:integer> font,
+    <t:integer> data
+)
+    return
+        <t:nil>              -- no node
+      | <t:nil>, <t:integer> -- node id
+      | <t:false>            -- glyph already done
+      | <t:integer>          -- character code
+end
+
+function node.direct.ischar (
+    <t:direct>  n, <t:integer> font,
+    <t:integer> data,
+    <t:integer> state
+)
+    return -- see above
+end
+
+function node.direct.ischar (
+    <t:direct>  n, <t:integer> font,
+    <t:integer> scale, <t:integer> xscale, <t:integer> yscale
+)
+    return -- see above
+end
+
+function node.direct.ischar (
+    <t:direct>  n, <t:integer> font,
+    <t:integer> data,
+    <t:integer> scale, <t:integer> xscale, <t:integer> yscale
+)
+    return -- see above
+end
+\stoptyping
+
+The \type {isglyph} checker is simpler:
+
+\starttyping[option=LUA]
+function node.direct.isglyph ( <t:direct> n )
+    return
+        <t:nil>,
+        <t:nil>
+end
+function node.direct.isglyph ( <t:direct> n )
+    return
+        <t:false>,
+        <t:integer> -- node id
+end
+function node.direct.isglyph ( <t:direct> n )
+    return
+        <t:integer>, -- character code,
+        <t:integer>  -- font id
+end
+\stoptyping
+
+A variant returns the next or previous node, or nothing when there is no node
+passed.
+
+\starttyping[option=LUA]
+function node.direct.isnextglyph ( <t:direct> n )
+    return
+        <t:integer> | <t:nil>, -- next node
+        <t:false>,
+        <t:integer>            -- node id
+end
+
+function node.direct.isnextglyph ( <t:direct> n )
+    return
+        <t:integer> | <t:nil>, -- next node
+        <t:integer>,           -- character code,
+        <t:integer>            -- font id
+end
+
+function node.direct.isprevglyph ( <t:direct> n )
+    return
+        <t:integer> | <t:nil>, -- previous node
+        <t:false>,
+        <t:integer>            -- node id
+end
+
+function node.direct.isprevglyph ( <t:direct> n )
+    return
+        <t:integer> | <t:nil>, -- previous node
+        <t:integer>,           -- character code,
+        <t:integer>            -- font id
+end
+\stoptyping
+
+We now introduce a special kind of node, one that stores a font related state. This
+one was introduced when we switched to compact font mode in \CONTEXT, after a
+few year period of testing.
+
+\starttyping[option=LUA]
+function node.direct.newfontcheck (
+    <t:integer> identifier,
+    <t:integer> data,
+    <t:integer> scale,
+    <t:integer> xscale,
+    <t:integer> yscale
+)
+    return <t:direct>
+end
+\stoptyping
+
+This spec also can store a slant and weight but this is not initialized
+via parameters. We can change values in this spec node
+
+\starttyping[option=LUA]
+function node.direct.setfontcheck (
+    <t:direct> node,
+    <t:direct> template
+)
+    -- no return value
+end
+\stoptyping
+
+The template node is glyph, font spec, or disc node. When it's a glyph, we take
+the 3 scale. When it's a font spec, the identifier, data and scale fields are
+copied. From a disc node we take the scales from the glyph that starts a replace
+field. If we pass more than two arguments the following is assumed:
+
+\starttyping[option=LUA]
+function node.direct.setfontcheck (
+    <t:direct>  node,
+    <t:integer> identifier,
+    <t:integer> data,
+    <t:integer> scale,
+    <t:integer> xscale,
+    <t:integer> yscale
+)
+    -- no return value
+end
+\stoptyping
+
+The getter returns already mentioned properties:
+
+\starttyping[option=LUA]
+function node.direct.getfontcheck (
+    <t:direct> node
+)
+    return
+        <t:integer>, -- identifier
+        <t:integer>, -- data
+        <t:integer>, -- scale
+        <t:integer>, -- xscale
+        <t:integer>  -- yscale
+end
+\stoptyping
+
+You can also do a test on equality of these five values:
+
+\starttyping[option=LUA]
+function node.direct.samefontcheck (
+    <t:direct>  fontspec,
+    <t:integer> identifier,
+    <t:integer> data,
+    <t:integer> scale,
+    <t:integer> xscale,
+    <t:integer> yscale
+)
+    return <t:boolean>
+end
+\stoptyping
+
+We can also check against a node, first a simple one:
+
+\starttyping[option=LUA]
+function node.direct.isfontcheck (
+    <t:direct> node,
+    <t:direct> fontspec
+)
+    return <t:boolean> -- glyph and same spec
+end
+\stoptyping
+
+The next one returns more details, depending on what node gets passed:
+
+\starttyping[option=LUA]
+function node.direct.ischarcheck (
+    <t:direct> node,
+    <t:direct> fontspec
+)
+    return
+        <t:direct>, <t:nil>, <t:integer> -- no glyph, node id
+      | <t:direct>, <t:boolean>          -- different character
+      | <t:direct>, <t:integer>          -- same, character
+      | <t:direct>, <t:nil>              -- no spec or node
+end
+\stoptyping
+
+These two are similar but also return next or previous node:
+
+\starttyping[option=LUA]
+function node.direct.isnextcharcheck (
+    <t:direct> node,
+    <t:direct> fontspec
+)
+    return
+        <t:direct>, <t:nil>, <t:integer> -- no glyph, node id
+      | <t:direct>, <t:boolean>          -- different character
+      | <t:direct>, <t:integer>          -- same, character
+      | <t:direct>, <t:nil>              -- no spec or node
+end
+
+function node.direct.isprevcharcheck (
+    <t:direct> node,
+    <t:direct> fontspec
+)
+    return
+        <t:direct>, <t:nil>, <t:integer> -- no glyph, node id
+      | <t:direct>, <t:boolean>          -- different character
+      | <t:direct>, <t:integer>          -- same, character
+      | <t:direct>, <t:nil>              -- no spec or node
+end
+\stoptyping
+
+{\em There are some extra helpers that one can consider to be experimental that
+we test in the node mode font handler. Just don't use them.}
+
+\stopsubsection
+
+\startsubsection[title={Manipulating lists}]
+
+Unless there is a bug or a callback messes up a node list is dual linked. In original
+\TEX\ nodes had to be small so nodes only had a next pointer. If you run into an issue
+you can use the next helper to sure that the node list is double linked.
+
+\starttyping[option=LUA]
+function node.direct.slide ( <t:direct> n)
+    return <t:direct> -- tail
+end
+\stoptyping
+
+In most cases \TEX\ itself only uses \type {next} pointers but your other
+callbacks might expect proper \type {prev} pointers too. So, when you run into
+issues or are in doubt, apply the slide function before you return the list. You
+can also get the tail without sliding:
+
+\starttyping[option=LUA]
+function node.direct.tail ( <t:direct> n )
+    return <t:direct> -- tail
+end
+\stoptyping
+
+For tracing purposes we have a few counters. The first one returns the number of
+nodes contained in the node list that starts at \type {n}. If \type {m} is also
+supplied it stops at \type {m} instead of at the end of the list. The node \type
+{m} is not counted.
+
+\starttyping[option=LUA]
+function node.direct.length (
+    <t:direct> n
+)
+    return <t:integer>
+end
+
+function node.direct.length (
+    <t:direct> n,
+    <t:direct> m
+)
+    return <t:integer>
+end
+\stoptyping
+
+The second one the number of nodes contained in the node list that starts at
+\type {n} that have a matching \type {id} field. If \type {m} is also supplied,
+counting stops at \type {m} instead of at the end of the list. The node \type {m}
+is not counted. This function also accept string \type {id}'s.
+
+\starttyping[option=LUA]
+function node.direct.count (
+    <t:integer> id,
+    <t:direct>  n
+)
+    return <t:integer>
+end
+
+function node.direct.count (
+    <t:integer> id,
+    <t:direct>  n,
+    <t:direct>  m
+)
+    return <t:integer>
+end
+\stoptyping
+
+This function removes the node \type {current} from the list following \type
+{head}. It is your responsibility to make sure it is really part of that list.
+The return values are the new \type {head} and \type {current} nodes. The
+returned \type {current} is the node following the \type {current} in the calling
+argument, and is only passed back as a convenience (or \type {nil}, if there is
+no such node). The returned \type {head} is more important, because if the
+function is called with \type {current} equal to \type {head}, it will be
+changed. When the third argument is passed, the node is freed.
+
+\starttyping[option=LUA]
+function node.direct.remove ( <t:direct> head, <t:direct> current )
+    return
+        <t:direct> head,
+        <t:direct> current,
+        <t:direct> removed
+end
+
+function node.direct.remove ( <t:direct> head, <t:direct> current, <t:boolean> free)
+    return
+        <t:direct> -- head,
+        <t:direct> -- current
+end
+\stoptyping
+
+This function inserts the node \type {new} before \type {current} into the list
+following \type {head}. It is your responsibility to make sure that \type
+{current} is really part of that list. The return values are the (potentially
+mutated) \type {head} and the node \type {new}, set up to be part of the list
+(with correct \type {next} field). If \type {head} is initially \type {nil}, it
+will become \type {new}.
+
+\starttyping[option=LUA]
+function node.direct.insertbefore (
+    <t:direct> head,
+    <t:direct> current,
+    <t:direct> new
+)
+    return
+        <t:direct>, -- head
+        <t:direct>  -- new
+end
+\stoptyping
+
+This function inserts the node \type {new} after \type {current} into the list
+following \type {head}. It is your responsibility to make sure that \type
+{current} is really part of that list. The return values are the \type {head} and
+the node \type {new}, set up to be part of the list (with correct \type {next}
+field). If \type {head} is initially \type {nil}, it will become \type {new}.
+
+\starttyping[option=LUA]
+function node.direct.insertafter (
+    <t:direct> head,
+    <t:direct> current,
+    <t:direct> new
+)
+    return
+        <t:direct>, -- head
+        <t:direct>  -- new
+end
+\stoptyping
+
+You can also mess with the list by changing the \type {next} or \type {prev} fields, using:
+
+\starttyping[option=LUA]
+function node.direct.setprev ( <t:direct> n, <t:direct> prv                 ) end
+function node.direct.setnext ( <t:direct> n, <t:direct> nxt                 ) end
+function node.direct.setboth ( <t:direct> n, <t:direct> prv, <t:direct> nxt ) end
+\stoptyping
+
+You can chain a set of nodes with \type {setlink}. A boolean instead of a node,
+is skipped. A double linked list is build from the nodes and as we go, but we
+keep the next node of the currently appended node untouched. However, a nil in
+the sequence will wipe that next pointer.
+
+\starttyping[option=LUA]
+function node.direct.setlink (
+    <t:direct> n1,
+    <t:direct> n2,
+    ...
+    <t:direct> nn
+)
+    return <t:direct> -- head
+end
+\stoptyping
+
+Let's assume that we have \type {n1} that has a prev pointer. In that case
+
+\starttyping[option=LUA]
+h = node.direct.setlink (
+    n1,    -- n1.prev = kept  n1.next = kept
+    n2,    -- n2.prev = n1    n2.next = kept  n1.next = n2
+    false, -- skipped
+    n4,    -- n4.prev = n2    n4.next = kept  n2.next = n4
+    nil    --                                 n4.next = nil
+)
+\stoptyping
+
+So, \type {h} will be \type {n1} and connected to what it was. However, the final
+nil makes that the chain ends with \type {n4}; without that the list would be
+injected before what \type {n4} pointed to. The tail of (sub)list \type {h} is
+\type {n4}.
+
+This function will split the list, although in practice one wants a bit more
+control over matters.
+
+\starttyping
+n1 <-> n2 <-> n3 <-> n4 : setsplit(n2,n2) : n1 <-> n2      n3 <-> n4
+n1 <-> n2 <-> n3 <-> n4 : setsplit(n2,n3) : n1 <-> n2      n3 <-> n4
+n1 <-> n2 <-> n3 <-> n4 : setsplit(n2,n4) : n1 <-> n2  n3  n4
+\stoptyping
+
+Anyway, what happens is this (in \ASCII\ art) is this:
+
+\starttyping[option=LUA]
+function node.direct.setsplit ( <t:direct> left, <t:direct> right ) end
+\stoptyping
+
+The next function pops the last node from \TEX's \quote{current list}. It returns
+that node, or \type {nil} if the current list is empty.
+
+\starttyping[option=LUA]
+function node.direct.lastnode ( )
+    return <t:direct> n
+end
+\stoptyping
+
+This helper returns the location of the first match at or after node \type {n}:
+
+\starttyping[option=LUA]
+function node.direct.findnode ( <t:direct> n, <t:integer> subtype )
+    return <t:direct> -- n
+end
+
+function node.direct.findnode ( <t:direct> n )
+    return
+        <t:direct>, -- n
+        <t:integer> -- subtype
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Traversing}]
+
+The easiest do-it-yourself approach to run over a list of nodes is to use one of
+the following functions:
+
+\starttyping[option=LUA]
+function node.direct.getnext ( <t:direct> n )
+    return <t:direct> | <t:nil>
+end
+
+function node.direct.getprev ( <t:direct> n )
+    return <t:direct> | <t:nil>
+end
+
+function node.direct.getboth ( <t:direct> n )
+    return
+        <t:direct> | <t:nil>, -- prev
+        <t:direct> | <t:nil>  -- next
+end
+\stoptyping
+
+Instead of using these you can use one of the iterators that loops over the node
+list that starts at \type {n}.
+
+\starttyping[option=LUA]
+function node.direct.traverse ( <t:direct> n )
+    return
+        <t:direct>  t,
+        <t:integer> id,
+        <t:integer> subtype
+end
+\stoptyping
+
+Typically code looks like this:
+
+\starttyping[option=LUA]
+for n in node.traverse(head) do
+    -- whatever
+end
+\stoptyping
+
+which is functionally equivalent to:
+
+\starttyping[option=LUA]
+do
+    local n
+    local function f (head,var)
+        local t
+        if var == nil then
+            t = head
+        else
+            t = var.next
+        end
+        return t
+    end
+    while true do
+        n = f (head, n)
+        if n == nil then
+            break
+        end
+        -- whatever
+    end
+end
+\stoptyping
+
+It should be clear from the definition of the function \type {f} that even though
+it is possible to add or remove nodes from the node list while traversing, you
+have to take great care to make sure all the \type {next} (and \type {prev})
+pointers remain valid.
+
+If the above is unclear to you, see the section \quote {For Statement} in the
+\LUA\ Reference Manual.
+
+This is an iterator that loops over all the nodes in the list that starts at
+\type {n} that have a matching \type {id} field. See the previous section for
+details. The change is in the local function \type {f}, which now does an extra
+while loop checking against the upvalue \type {id}, kind of like:
+
+\starttyping[option=LUA]
+local function f(head,var)
+    local t
+    if var == nil then
+        t = head
+    else
+        t = var.next
+    end
+    while not t.id == id do
+        t = t.next
+    end
+    return t
+end
+\stoptyping
+
+This and the previously discussed \type {traverse} are the only traverses
+provided for userdata nodes.
+
+\starttyping[option=LUA]
+function node.direct.traverseid ( <t:integer> id, <t:direct> n )
+    return
+        <t:direct>  t,
+        <t:integer> subtype
+end
+\stoptyping
+
+The \type {traversechar} iterator loops over the \type {glyph} nodes in a list.
+Only nodes with a subtype less than 256 are seen.
+
+{\em NEEDS CHECKING: protected check}
+
+\starttyping[option=LUA]
+function node.direct.traversechar ( <t:direct> n )
+    return
+        <t:direct>,  -- n
+        <t:integer>, -- char
+        <t:integer>  -- font
+end
+\stoptyping
+
+The \type {traverseglyph} iterator loops over a list and returns the list and
+filters all glyphs:
+
+\starttyping[option=LUA]
+function node.direct.traverseglyph ( <t:direct> n )
+    return
+        <t:direct>,  -- n
+        <t:integer>, -- char
+        <t:integer>  -- font
+end
+\stoptyping
+
+This iterator loops over the \type {hlist} and \type {vlist} nodes in a list. The
+four return values can save some time compared to fetching these fields but in
+practice you seldom need them all.
+
+\starttyping[option=LUA]
+function node.direct.traverselist ( <t:direct> n )
+    return
+        <t:direct>,  -- n
+        <t:integer>, -- identifier
+        <t:integer>, -- subtype
+        <t:direct>   -- list
+end
+\stoptyping
+
+This iterator loops over nodes that have content: \type {hlist}, \type {vlist},
+\type {glue} with leaders, \type {glyph}, \type {disc} and \type {rule} nodes.
+
+\starttyping[option=LUA]
+function node.direct.traversecontent ( <t:direct> n )
+    return
+        <t:direct>,  -- n
+        <t:integer>, -- identifier
+        <t:integer>, -- subtype
+        <t:direct>   -- listorleader
+end
+\stoptyping
+
+Kerns nodes that have the italic, left correction or right correction subtype can
+be traversed with
+
+\starttyping[option=LUA]
+function node.direct.traverseitalic ( <t:direct> n )
+    return
+        <t:direct>, -- n
+        <t:integer> -- subtype
+end
+\stoptyping
+
+You can loop over the so called uleaders and then do something with their
+content. You get back a hlist or vlist that has the uleaders package property
+set.
+
+\starttyping[option=LUA]
+function node.direct.traverseleaders ( <t:direct> n )
+    return
+        <t:direct>, -- list
+        <t:integer> -- type
+        <t:integer> -- subtype
+end
+\stoptyping
+
+The traversers also support backward traversal. An optional extra boolean triggers
+this. Yet another optional boolean will automatically start at the end of the
+given list. So, if we want both we use:
+
+\starttyping[option=LUA]
+function node.direct.traverse (
+    <t:direct>  n,
+    <t:boolean> reverse,
+    <t:boolean> startatend
+)
+    return
+        <t:direct>  t,
+        <t:integer> id,
+        <t:integer> subtype
+end
+\stoptyping
+
+You can look ahead and back with these three, you pass two arguments, a node and
+type to be checked:
+
+\starttyping[option=LUA]
+function node.direct.isnext ( <t:direct> n, <t:integer> type )
+    return <t:direct> | <t:nil>
+end
+function node.direct.isprev ( <t:direct> n, <t:integer> type )
+    return <t:direct> | <t:nil>
+end
+function node.direct.isboth ( <t:direct> n, <t:integer> type )
+    return
+        <t:direct> | <t:nil>, -- prev
+        <t:direct> | <t:nil>  -- next
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title=Dimensions]
+
+When working with nodes that have dimensions it can be that the effective
+width, height and depth are determined by for instance scaling (glyphs) or
+packaging (lists).
+
+\starttyping[option=LUA]
+function node.direct.getglyphdimensions ( <t:direct> glyph )
+    return
+        <t:integer>, -- width  (includes expansion)
+        <t:integer>, -- height
+        <t:integer>, -- depth
+        <t:integer>, -- expansion
+        <t:number>,  -- xscale (fractions)
+        <t:number>,  -- yscale (fractions)
+        <t:number>,  -- slant  (fractions)
+        <t:number>   -- weight (fractions)
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function node.direct.getkerndimensions ( <t:direct> kern )
+    return <t:integer>, -- width (includes expansion)
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function node.direct.getruledimensions ( <t:direct> rule )
+    return
+        <t:integer>, -- virtualwidth
+        <t:integer>, -- virtualheight
+        <t:integer>, -- virtualdepth
+        <t:true>     -- isvirtual
+end
+
+function node.direct.getruledimensions ( <t:direct> rule )
+    return
+    <t:integer>, -- width
+    <t:integer>, -- height
+    <t:integer>, -- depth
+    <t:false>    -- notvirtual
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function node.direct.getlistdimensions ( <t:direct> rule )
+    return
+        <t:integer>, -- width
+        <t:integer>, -- height
+        <t:integer>, -- depth
+        <t:integer>, -- shift
+        <t:direct>,  -- list
+        <t:direct>   -- except
+end
+\stoptyping
+
+Because rules are general purpose blobs, we have a setter. When we have a
+virtual rule, the dimensions are stored but not used in packaging.
+
+\starttyping[option=LUA]
+function node.direct.setruledimensions (
+    <t:direct>  rule,
+    <t:integer> width,
+    <t:integer> height,
+    <t:integer> depth,
+    <t:integer> data
+)
+    -- no return value
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Glyphs}]
+
+Glyphs have a lot of parameters and there are many setters and getters that
+can access them. Some generic ones, like \type {getwidth} are discussed
+in other subsections, some are more specific to glyphs:
+
+\starttyping[option=LUA]
+function node.direct.getslant  ( <t:direct> g ) return <t:integer> end
+function node.direct.getweight ( <t:direct> g ) return <t:integer> end
+\stoptyping
+
+and
+
+\starttyping[option=LUA]
+function node.direct.setslant  ( <t:direct> g, <t:integer> slant  ) end
+function node.direct.setweight ( <t:direct> g, <t:integer> weight ) end
+\stoptyping
+
+Glyph scales are normally set at the \TEX\ end using one of the pseudo internal
+registers. Internally the scales are integers, where 1000 means a scale of 1. We
+have quite some related helpers.
+
+\starttyping[option=LUA]
+function node.direct.getscale (
+    <t:direct> node
+)
+    return <t:integer> -- scale
+end
+
+function node.direct.getscales (
+    <t:direct> node
+)
+    return
+        <t:integer>, -- scale
+        <t:integer>, -- xscale
+        <t:integer>  -- yscale
+end
+\stoptyping
+
+As usual we also have setters, where numbers get properly rounded:
+
+\starttyping[option=LUA]
+function node.direct.setscale   (
+    <t:direct>  node,
+    <t:numbers> scale
+)
+    --- no return values
+end
+
+function node.direct.setscales (
+    <t:direct> node,
+    <t:number> scale,
+    <t:number> xscale,
+    <t:number> yscale
+)
+    -- no return value
+end
+\stoptyping
+
+When we work with scales we can use one of these. This time we work
+with numbers, so we've properly divided by 1000.
+
+\starttyping[option=LUA]
+function node.direct.getxscale  ( <t:direct> node )
+    return <t:number>
+end
+function node.direct.getyscale  ( <t:direct> node )
+    return <t:number>
+end
+function node.direct.getxyscale ( <t:direct> node )
+    return <t:number>,  <t:number>
+end
+\stoptyping
+
+Watch out, this setter again uses integers:
+
+\starttyping[option=LUA]
+function node.direct.setxyscale (
+    <t:direct>  node,
+    <t:integer> xscale,
+    <t:integer> yscale
+)
+    --- no return values
+end
+\stoptyping
+
+The \type {getxscale} is special in the sense that when a glue node is passed
+that has space properties, it will deduce the scale value from a previous or next
+glyph. This can be used to calculate a space which is the reason that only fonts
+with such a character are valid, otherwise the scale is just 1.
+
+The control field defines if and how specific typesetting related features get
+applies as specified with the glyph option and/or various related mechanisms.
+
+\starttyping[option=LUA]
+function node.direct.getcontrol (
+    <t:direct>
+)
+    return <t:integer>
+end
+
+function node.direct.setcontrol (
+    <t:direct>  node,
+    <t:integer> control
+)
+    -- no return values
+end
+\stoptyping
+
+In \LUAMETATEX\ we have extended the math engine with \quote {corner kerns} that
+more or less replace (often unreliable \OPENTYPE) staircase kerns and
+(traditional \TEX) italic correction. For diagnostic purposes you can get these
+with:
+
+\starttyping[option=LUA]
+function node.direct.getcornerkerns (
+    <t:direct> glyph
+)
+    return
+        <t:integer, -- bottom left
+        <t:integer, -- bottom right
+        <t:integer, -- top left
+        <t:integer  -- top right
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Glue}]
+
+You can set the five properties of a glue in one go. If a non|-|numeric value is
+passed the property becomes zero.
+
+\starttyping[option=LUA]
+function node.direct.setglue ( <t:direct> n )
+    -- no return values
+end
+
+function node.direct.setglue (
+    <t:direct>  n,
+    <t:integer> width,
+    <t:integer> stretch,
+    <t:integer> shrink,
+    <t:integer> stretchorder,
+    <t:integer> shrinkorder
+)
+    -- no return values
+end
+\stoptyping
+
+When you pass values, only arguments that are numbers are assigned so the next
+call will only adapt the width and shrink.
+
+\starttyping[option=LUA]
+node.direct.setglue(n,655360,false,65536)
+\stoptyping
+
+
+When a list node is passed, you set the glue, order and sign instead. The next
+call will return five values or nothing when no glue is passed.
+
+\starttyping[option=LUA]
+function node.direct.getglue ( <t:direct> n )
+    return
+        <t:integer>, -- width
+        <t:integer>, -- stretch
+        <t:integer>, -- shrink
+        <t:integer>, -- stretchorder
+        <t:integer>  -- shrinkorder
+\stoptyping
+
+When the second argument is false, only the width is returned (this is consistent
+with \type {tex.get}). When a list node is passed, you get back the glue that is
+set, the order of that glue and the sign.
+
+This function returns \type {true} when the width, stretch and shrink properties
+are all zero.
+
+\starttyping[option=LUA]
+function node.direct.iszeroglue ( <t:direct> n )
+    return <t:boolean> -- allzero
+end
+\stoptyping
+
+Glue is not only, well, glue. The to be filled space can also be occupied by a rule,
+boxes, glyphs and what more. You can get the list that makes this with:
+
+\starttyping[option=LUA]
+function node.direct.getleader ( <t:direct> n )
+    return <t:direct> -- list
+end
+\stoptyping
+
+and set the list with
+
+\starttyping[option=LUA]
+function node.direct.setleader ( <t:direct> n, <t:direct> l | <t:nil> )
+    -- no return values
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Attributes}]
+
+Assignments to attributes registers result in assigning lists with set attributes
+to nodes and the implementation is non|-|trivial because the value that is
+attached to a node is essentially a (sorted) sparse array of key|-|value pairs.
+It is generally easiest to deal with attribute lists and attributes by using the
+dedicated functions in the \type {node} library.
+
+An \type {attribute} comes in two variants, indicated by subtype. Because
+attributes are stored in a sorted linked list, and because they are shared, the
+first node is a list reference node and the following ones are value nodes. So,
+most attribute nodes are value nodes. These are forward linked lists. Because
+there are assumptions to how these list are build you should rely on the helpers,
+also because details might change.
+
+This returns the currently active list of attributes, if there is one.
+
+\starttyping[option=LUA]
+function node.direct.currentattr()
+    return <t:direct> -- list
+end
+\stoptyping
+
+The intended usage of \type {currentattr} is as follows (we use the userdata
+interface here):
+
+\starttyping[option=LUA]
+local x1 = node.new("glyph")
+x1.attr = node.currentattr()
+local x2 = node.new("glyph")
+x2.attr = node.currentattr()
+\stoptyping
+
+or:
+
+\starttyping[option=LUA]
+local x1 = node.new("glyph")
+local x2 = node.new("glyph")
+local ca = node.currentattr()
+x1.attr = ca
+x2.attr = ca
+\stoptyping
+
+The attribute lists are reference counted and the assignment takes care of
+incrementing the count. You cannot expect the value \type {ca} to be valid any
+more when you assign attributes (using \type {tex.setattribute}) or when control
+has been passed back to \TEX.
+
+\starttyping[option=LUA]
+<number> v = node.hasattribute ( <t:node> n, <number> id )
+<number> v = node.hasattribute ( <t:node> n, <number> id, <number> val )
+\stoptyping
+
+Of course this one is also available in the \typ {node.direct} name space, as is
+the following one that tests if a node has the attribute with number \type {id}
+set. If \type {val} is also supplied, also tests if the value matches \type
+{val}. It returns the value, or, if no match is found, \type {nil}.
+
+\starttyping[option=LUA]
+function node.direct.getattribute ( <t:direct> n, <t:integer> id )
+    return <t:integer> -- value
+end
+\stoptyping
+
+The previous function tests if a node has an attribute with number \type {id}
+set. It returns the value, or, if no match is found, \type {nil}. If no \type
+{id} is given then the zero attributes is assumed.
+
+\starttyping[option=LUA]
+function node.direct.findattribute ( <t:direct> n, <t:integer> id )
+    return
+        <t:integer>, -- value
+        <t:direct>   -- node
+end
+\stoptyping
+
+Finds the first node that has attribute with number \type {id} set. It returns
+the value and the node if there is a match and otherwise nothing.
+
+\starttyping[option=LUA]
+function node.direct.setattribute ( <t:direct> n, <t:integer> id, <t:integer> value )
+    -- no return values
+end
+\stoptyping
+
+Sets the attribute with number \type {id} to the value \type {value}. Duplicate
+assignments are ignored.
+
+\starttyping[option=LUA]
+function node.direct.unsetattribute ( <t:direct> n, <t:integer> id )
+    return <t:integer> -- value
+end
+
+function node.direct.unsetattribute ( <t:direct> n, <t:integer> id, <t:integer> value )
+    return <t:integer> -- value
+end
+\stoptyping
+
+Unsets the attribute with number \type {id}. If \type {value} is also supplied,
+it will only perform this operation if the value matches \type {value}. Missing
+attributes or attribute|-|value pairs are ignored. If the attribute was actually
+deleted, the function returns its old value, otherwise it returns \type {nil}.
+
+There are also helpers that instead of setting or getting a specific attribute,
+work with a list. You should not mess with these lists unless you're sure what
+you do. These helpers are mainly there because they can be used to copy a list
+from one node to another efficiently. The setter checks the second argument and
+will copy the list from the other node if it's not an attribute list.
+
+\starttyping[option=LUA]
+function node.direct.getattributelist (<t:direct> source)
+    return <t:direct> -- list
+end
+
+function node.direct.setattributelist (<t:direct> target, <t:direct> list)
+    -- no return values
+end
+
+function node.direct.setattributelist (<t:direct> target, <t:direct> source)
+    -- no return values
+end
+\stoptyping
+
+Instead of getting or setting one attribute you can handle multiple in a row,
+which might be more efficient:
+
+\starttyping[option=LUA]
+function node.direct.getattributes (
+    <t:direct>  node,
+    <t:integer> id,
+    ...              -- more id's
+)
+    return
+        <t:integer>, -- value
+        ...          -- more values
+end
+
+function node.direct.setattributes (
+    <t:direct>  node,
+    <t:integer> id,
+    <t:integer> value,
+    ...                -- more id's and values
+)
+    -- no return values
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Glyph handling}]
+
+Processing a character stream into a visual representation using glyphs is one of
+the important processes in the engine. In \TEX82 this happens in two places. When
+the text is read ligaturing and kerning takes place and the list can, if needed,
+be packed into a box because the dimensions are now known. When that list is to
+become a paragraph it might be that lines get split and when a word can be
+hyphenated the ligaturing and kerning is reverted, the word gets hyphenated,
+ligatures and kerns get reapplied and the process goes on.
+
+In \OPENTYPE\ processing characters is way more complex. Even if we delegate this
+to a library, the fact that we have a mix of text and whatever, potential
+hyphenation as well as spaces turned glue, means that we need to do some juggling
+with nodes. For that reason hyphenation (of the whole list), ligaturing and
+kerning has been split into clearly separates stages. One can still apply the
+original \TEX\ variants but in practice it is \LUA\ that does the juggling of
+nodes in more complex situations. And we're not only talking of font processing.
+For instance, additional inter-character kerning can be done in \LUA\ too.
+
+This all means that we have quite a repertoire of helpers that deal with glyph
+processing efficiently.
+
+We can locate the first node in the list starting at \type {n} that is a glyph node
+with a subtype indicating it is a glyph, or \type {nil}. If \type {m} is given,
+processing stops at (but including) that node, otherwise processing stops at the
+end of the list. The \type {char} and \type {glyph} variants check for the
+protected field being (yet) unset or (already) set.
+
+\starttyping[option=LUA]
+function node.direct.firstglyphnode ( <t:direct> n )
+    return <t:direct> -- n
+end
+
+function node.direct.firstglyphnode ( <t:direct> n, <t:direct> m )
+    return <t:direct> -- n
+end
+\stoptyping
+
+The next functions can be used to determine if processing is needed. We distinguish between
+a character (unprocessed) and a glyph (processed or unprocessed). When we check for a glyph
+there are three possible outcomes:
+
+\starttyping[option=LUA]
+function node.direct.isglyph ( <t:direct> n )
+    return
+        <t:nil>,
+        <t:nil>
+end
+
+function node.direct.isglyph ( <t:direct> n )
+    return
+        <t:false>,
+        <t:integer> -- identifier
+end
+
+function node.direct.isglyph ( <t:direct> n )
+    return
+        <t:integer>, -- character
+        <t:integer>  -- font
+end
+\stoptyping
+
+Checking for a processed character is more complicated. If the glyph has been processed and
+the protected property has been set, we get this:
+
+\starttyping[option=LUA]
+function node.direct.ischar ( <t:direct> n )
+    return <t:false>
+end
+\stoptyping
+
+If that's not the case additional arguments are checked. If we don't pass a valid
+integer, the character value is returned:
+
+\starttyping[option=LUA]
+function node.direct.ischar ( <t:direct> n, <t:integer> font )
+    return <t:integer> -- character
+end
+\stoptyping
+
+btu when we passed a font identifier indeed we check if that one matches the one in the
+glyph and if not again we get:
+
+\starttyping[option=LUA]
+function node.direct.ischar ( <t:direct> n, <t:integer> font )
+    return <t:false> --
+end
+\stoptyping
+
+From there on we check for more arguments to match the glyph fields:
+
+\starttyping[option=LUA]
+function node.direct.ischar (
+    <t:direct>  n,
+    <t:integer> font,
+    <t:integer> data
+)
+    return <t:false> | <t:integer> -- character
+
+end
+
+function node.direct.ischar (
+    <t:direct>  n,
+    <t:integer> font,
+    <t:integer> data,
+    <t:integer> state
+)
+    return <t:false> | <t:integer> -- character
+
+end
+
+function node.direct.ischar (
+    <t:direct>  n,
+    <t:integer> font,
+    <t:integer> scale,
+    <t:integer> xscale,
+    <t:integer> yscale,
+)
+    return <t:false> | <t:integer> -- character
+
+end
+
+function node.direct.ischar (
+    <t:direct>  n,
+    <t:integer> font,
+    <t:integer> data,
+    <t:integer> scale,
+    <t:integer> xscale,
+    <t:integer> yscale,
+)
+    return <t:false> | <t:integer> -- character
+
+end
+\stoptyping
+
+There are reasons for these combined tests and they can be found in the \CONTEXT\
+font handler. A related helper is one that compares the \type {font}, \type
+{data}, \type {scale}, \type {xscale}, \type {yscale}, \type {slant} and \type
+{weight}.
+
+\starttyping[option=LUA]
+function node.direct.issimilarglyph ( <t:direct>  one, <t:direct> two )
+    return <t:boolean> -- similar
+end
+\stoptyping
+
+This function returns the first glyph or disc node in the given list:
+
+\starttyping[option=LUA]
+function node.direct.hasglyph ( <t:direct> n )
+    return <t:direct> -- n
+end
+\stoptyping
+
+Traditional \TEX\ ligature processing can be achieved with the next helper. This
+assumes that the ligature information is present in the font. In \CONTEXT\ we
+call this base mode processing.
+
+\starttyping[option=LUA]
+function node.direct.ligaturing ( <t:direct> first )
+    return
+        <t:direct>, -- head
+        <t:direct>, -- tail
+        <t:boolean> -- success
+end
+
+function node.direct.ligaturing ( <t:direct> first, <t:direct> last )
+    return
+        <t:direct>, -- head
+        <t:direct>, -- tail
+        <t:boolean> -- success
+end
+\stoptyping
+
+Traditional \TEX\ font kern processing can be achieved with the next helper. This
+assumes that the kern information is present in the font. In \CONTEXT\ we
+call this base mode processing.
+
+\starttyping[option=LUA]
+function node.direct.kerning ( <t:direct> first )
+    return
+        <t:direct>, -- head
+        <t:direct>, -- tail
+        <t:boolean> -- success
+end
+
+function node.direct.kerning ( <t:direct> first, <t:direct> last )
+    return
+        <t:direct>, -- head
+        <t:direct>, -- tail
+        <t:boolean> -- success
+end
+\stoptyping
+
+It will be no surprise that the next function has the same setup as the previous
+two because normally you will first hyphenate, then ligature and finally kern.
+When \LUA\ does the font handling you will also first hyphenate. In a traditional
+\TEX\ engine the three steps are kind of mixed into the par builder: there we
+hyphenate only those places where it makes sense which then involves local
+reconstruction of the original sequence of glyphs that make the word (no
+ligatures and kerns) and later applying these base features.
+
+\starttyping[option=LUA]
+function node.direct.hyphenating ( <t:direct> first )
+    return
+        <t:direct>, -- head
+        <t:direct>, -- tail
+        <t:boolean> -- success
+end
+
+function node.direct.hyphenating ( <t:direct> first, <t:direct> last )
+    return
+        <t:direct>, -- head
+        <t:direct>, -- tail
+        <t:boolean> -- success
+end
+\stoptyping
+
+When processing is done, you can mark the glyph nodes as protected in order to
+prevent redundant processing, for instance because boxed material gets unboxed.
+Where in \LUATEX\ the subtype gets changed by adding or subtracting 256, in
+\LUAMETATEX\ we have a dedicated (small) protection field.
+
+\starttyping[option=LUA]
+function node.direct.protectglyph ( <t:direct> n )
+    -- no return values
+end
+
+function node.direct.protectglyphs ( <t:direct> first, <t:direct> last )
+    -- no return values
+end
+\stoptyping
+
+The opposite action can also be done.
+
+\starttyping[option=LUA]
+function node.direct.unprotectglyph ( <t:direct> n )
+    -- no return values
+end
+
+function node.direct.unprotectglyphs ( <t:direct> first, <t:direct> last )
+    -- no return values
+end
+\stoptyping
+
+When we wrote the \LUA\ font handler code, we introduced what we call \quote
+{base} mode for traditional (built-in) processing and \quote {node} mode for
+\LUA\ based \OPENTYPE\ processing. In \CONTEXT\ we also have \quote {none} and
+\quote {plug} (for special purposes). A font can be marked as base or none and if
+that is done, one can use the following functions to set the protection state of
+a (range of) glyph nodes.
+
+\showenginevalues{textcontrolvalues}
+
+These control values are uses in places where we apply some magic and either
+permit or block some treatment. Two relate to base mode, one to none mode. The
+\type {textcontrol} field in a font table has that bitset.
+
+\starttyping[option=LUA]
+function node.direct.protectglyphsnone ( <t:direct> first, <t:direct> last )
+    -- no return values
+end
+
+function node.direct.protectglyphsbase ( <t:direct> first, <t:direct> last )
+    -- no return values
+end
+\stoptyping
+
+These function are not really meant for users, as they work closely with the
+provided \LUA\ functions for processing fonts where they can help to prevent
+redundant or unwanted processing. When they are applied, the protection state
+can change:
+
+\showenginevalues{glyphprotectionvalues}
+
+The next function checks if protrusion is active at a line boundary, in which case the glyph
+node can be skipped. It's not that useful in the end.
+
+\starttyping[option=LUA]
+function node.direct.protrusionskipable ( <t:direct> n )
+    return <t:boolean> -- skippable
+end
+\stoptyping
+
+Once we're done we can freeze leaders: apply the glue to the leader and freeze
+the boxes or whatever is at hand.
+
+\starttyping[option=LUA]
+function node.direct.flattenleaders ( <t:direct> n )
+    return
+        <t:direct>, -- head
+        <t:integer> -- count
+end
+\stoptyping
+
+There are some properties specific for glyphs, like:
+
+\starttyping[option=LUA]
+function node.direct.getlanguage ( <t:direct> n )
+    return <t:integer> -- identifier
+end
+
+function node.direct.setlanguage (
+    <t:direct>  n,
+    <t:integer> id
+)
+    -- no return value
+end
+\stoptyping
+
+The script field is not used in the engine; the getter has two variants:
+
+\starttyping[option=LUA]
+function node.direct.getscript ( <t:direct> n )
+    return <t:integer> -- identifier
+end
+
+function node.direct.getscript ( <t:direct> n, <t:integer> s )
+    return <t:boolean> -- match
+end
+
+function node.direct.setscript (
+    <t:direct>  n,
+    <t:integer> id
+)
+    -- no return value
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title=Discretionaries]
+
+Discretionaries and glyphs are the carriers of text. Where the core of \type
+{glyph} nodes are the \type {font} and \type {char} fields, in \type {disc} nodes
+we have to focus on the \type {pre}, \type {post} and \type{replace} fields.
+These point to linked lists that are a mix of glyph, kerns and (in \LUAMETATEX\
+fixed width) glue. here are the accessors: \footnote {These are a bit more
+generic because they also return fields from \type {choice} nodes and possibly
+\type {hlist} and \type {vlist} nodes.}
+
+\starttyping[option=LUA]
+function node.direct.getpost ( <t:direct> d, <t:boolean> tailtoo )
+    return
+        <t:direct>, -- head
+        <t:direct>  -- tail
+end
+
+function node.direct.getpre ( <t:direct> d, <t:boolean> tailtoo )
+    return
+        <t:direct>, -- head
+        <t:direct>  -- tail
+end
+
+function node.direct.getreplace ( <t:direct> d, <t:boolean> tailtoo )
+    return
+        <t:direct>, -- head
+        <t:direct>  -- tail
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function node.direct.getdisc ( <t:direct> d, <t:boolean> tailtoo )
+    return
+        <t:direct>, -- prehead
+        <t:direct>, -- posthead
+        <t:direct>, -- replacehead
+        <t:direct>, -- pretail
+        <t:direct>, -- posttail
+        <t:direct>  -- replacetail
+end
+\stoptyping
+
+We also have setters:
+
+\starttyping[option=LUA]
+function node.direct.setpost    ( <t:direct> d, <t:direct> | <t:nil> ) end
+function node.direct.setpre     ( <t:direct> d, <t:direct> | <t:nil> ) end
+function node.direct.setreplace ( <t:direct> d, <t:direct> | <t:nil> ) end
+\stoptyping
+
+A major update can be done with this one:
+
+\starttyping[option=LUA]
+function node.direct.setdisc (
+    <t:direct>,            -- discretionary
+    <t:direct>  | <t:nil>, -- pre
+    <t:direct>  | <t:nil>, -- post
+    <t:direct>  | <t:nil>, -- replace
+    <t:subtype> | <t:nil>, -- subtype
+    <t:subtype> | <t:nil>  -- penalty
+)
+    -- no return values
+end
+\stoptyping
+
+From this you can deduce that we can also say:
+
+\starttyping[option=LUA]
+function node.direct.getpenalty ( <t:direct> d )
+    return <t:integer> -- penalty
+end
+
+function node.direct.setpenalty ( <t:direct> d, <t:integer> penalty )
+    -- no return value
+end
+\stoptyping
+
+Discretionaries can have options set, which you then can checked with
+the following function:
+
+\starttyping[option=LUA]
+function node.direct.hasdiscoption ( <t:direct> d, <t:integer> option )
+    return <t:boolean> -- inbitset
+end
+\stoptyping
+
+A bitwise and is done on the field in the node where possible bits are:
+
+\showenginevalues{discoptionvalues}
+
+The next pair targets glyphs and normally you will not use the setter, because
+the engine takes care of setting that state.
+
+\starttyping[option=LUA]
+function node.direct.getdiscpart ( <t:direct> g )
+    return
+        <t:integer>, -- part
+        <t:integer>, -- after
+        <t:integer>  -- code
+
+end
+
+function node.direct.setdiscpart (
+    <t:direct>  g,
+    <t:integer> part
+    <t:integer> after
+    <t:integer> code
+)
+    -- no return value
+end
+\stoptyping
+
+The part and after properties relate to discretionary nodes that might have been
+flattened. The complication in (tracing) here is that information is lost so we
+store the states in the glyph node.
+
+\showenginevalues[3]{discpartvalues}
+
+The code properties relate to where the (usually hyphen) character comes from:
+
+\showenginevalues[3]{glyphdiscvalues}
+
+When you fool around with disc nodes you need to be aware of the fact that they
+have a special internal data structure. As long as you reassign the fields when
+you have extended the lists it's ok because then the tail pointers get updated,
+but when you add to list without reassigning you might end up in trouble when
+the linebreak routine kicks in. You can call this function to check the list for
+issues with disc nodes.
+
+\starttyping[option=LUA]
+function node.direct.checkdiscretionary ( <t:direct> n )
+    -- no return values
+end
+\stoptyping
+
+The plural variant runs over all disc nodes in a list, the singular variant
+checks one node only (it also checks if the node is a disc node).
+
+\starttyping[option=LUA]
+function node.direct.checkdiscretionaries ( <t:direct> head )
+    -- no return values
+end
+\stoptyping
+
+This function will remove the discretionaries in the list and inject the replace
+field when set.
+
+\starttyping[option=LUA]
+function node.direct.flattendiscretionaries ( <t:direct> n )
+    return
+        <t:direct>, -- head
+        <t:integer> -- count
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Boxes}]
+
+Lists have many fields and most are accessed via general helpers. Here we only
+mention special field accessors. Because this is an experimental feature we just
+mention excepts. This is a plugin mechanism that (sort of) communicates with the
+page builder. \footnote {In \CONTEXT\ one can grep for adaptive and except.}
+
+\starttyping[option=LUA]
+function node.direct.getexcept (
+    <t:direct> node
+)
+    return
+        <t:direct>, -- except
+        <t:integer> -- depth
+end
+
+function node.direct.setexcept (
+    <t:direct>  node,
+    <t:direct>  except,
+    <t:integer> depth
+)
+    -- no return values
+end
+\stoptyping
+
+Boxes can have an orientation, offsets and/or anchors. The state of these is
+registered in a \type {geometry} bitset.
+
+\starttyping[option=LUA]
+function node.direct.getgeometry (
+    <t:direct> node
+)
+    return <t:integer> -- geometry
+end
+
+function node.direct.getgeometry (
+    <t:direct> node,
+    <t:true>
+)
+    return
+        <t:integer> -- geometry
+        <t:boolean> -- offset
+        <t:boolean> -- orientation
+        <t:boolean> -- anchor
+        <t:integer> -- direction
+end
+
+function node.direct.setgeometry (
+    <t:direct>  node,
+    <t:integer> geometry
+)
+    -- no return value
+end
+
+function node.direct.hasgeometry (
+    <t:direct> node
+)
+    return <t:integer> | <t:boolean>
+end
+\stoptyping
+
+Possible bits in to be checked set are:
+
+\showenginevalues{listgeometryvalues}
+
+If an orientation is set, you can query several properties:
+
+\starttyping[option=LUA]
+function node.direct.getorientation (
+    <t:direct> node
+)
+    return
+        <t:integer>, -- orientation
+        <t:integer>, -- xoffset
+        <t:integer>, -- yoffset
+        <t:integer>, -- woffset
+        <t:integer>, -- hoffset
+        <t:integer>  -- doffset
+end
+\stoptyping
+
+When setting the orientation you can set a value (integer),
+reset it (nil) or do nothing (true).
+
+\starttyping[option=LUA]
+function node.direct.getorientation (
+    <t:direct>  node,
+    <t:integer> orientation,
+    <t:integer> xoffset,
+    <t:integer> yoffset,
+    <t:integer> woffset,
+    <t:integer> hoffset,
+    <t:integer> doffset
+)
+    -- no return values
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Kerns, glue and penalties}]
+
+Penalties are just integers where some have special meanings. Of course a penalty
+node has this field, but math and disc nodes also have a penalty field.
+
+\starttyping[option=LUA]
+function node.direct.getpenalty ( <t:direct> node ) return <t:integer> end
+function node.direct.setpenalty ( <t:direct> node, <t:integer> penalty ) end
+\stoptyping
+
+Kern and math nodes have a kern field that can be accessed with: \footnote {We
+could have introduced a more neutral \type {amount} field instead.}
+
+\starttyping[option=LUA]
+function node.direct.getkern ( <t:direct> node ) return <t:integer> end
+function node.direct.setkern ( <t:direct> node, <t:integer> kern ) end
+\stoptyping
+
+Glue is more complex because it is not just one number. A glue, gluespec or math
+node has this:
+
+\starttyping[option=LUA]
+function node.direct.getglue ( <t:direct> node )
+    return
+        <t:integer>, -- amount
+        <t:integer>, -- stretch
+        <t:integer>, -- shrink
+        <t:integer>, -- stretchorder
+        <t:integer>  -- shrinkorder
+end
+\stoptyping
+
+A box (hlist, vlist or unset) returns values that relate to the packaging.
+
+\starttyping[option=LUA]
+function node.direct.getglue ( <t:direct> node )
+    return
+        <t:number>,  -- setglue
+        <t:integer>, -- order
+        <t:integer>  -- sign
+end
+\stoptyping
+
+The setters work the other way around, with all values being optional and
+defaulting to zero.
+
+\starttyping[option=LUA]
+function node.direct.setglue (
+    <t:direct>  node,
+    <t:integer> amount,
+    <t:integer> stretch,
+    <t:integer> shrink,
+    <t:integer> stretchorder,
+    <t:integer> shrinkorder
+)
+   -- no return values
+end
+\stoptyping
+
+and
+
+\starttyping[option=LUA]
+function node.direct.setglue (
+    <t:direct>  node,
+    <t:number>  setglue,
+    <t:integer> order,
+    <t:integer> sign
+)
+   -- no return values
+end
+\stoptyping
+
+Because we have multiple sub fields we have a zero checker:
+
+\starttyping[option=LUA]
+function node.direct.iszeroglue ( <t:direct> node ) return <t:boolean> end
+\stoptyping
+
+Glue nodes and math nodes with a glue property have specifications that
+are adapted according to the width of the surrounding box. We can get the
+effective values with:
+
+\starttyping[option=LUA]
+function nodes.direct.effectiveglue (
+    <t:direct> node,
+    <t:direct> parent
+)
+    return <t:integer> amount
+end
+\stoptyping
+
+Here the parent node has to be a hlist or vlist node, otherwise we just get the
+set amount.
+
+\stopsubsection
+
+\startsubsection[title=Packaging and dimensions]
+
+At some point a node list has to be packed in either a horizontal or vertical
+box. There are restrictions to what can get packed, for instance you cannot have
+glyphs in a vertical list.
+
+
+The \type {hpack} function creates a new hlist by packaging the list that begins
+at node \type {n} into a horizontal box. With only a single argument, this box is
+created using the natural width of its components. In the three argument form,
+\type {info} must be either \type {additional} or \type {exactly}, and \type {w}
+is the additional (\type {\hbox spread}) or exact (\type {\hbox to}) width to be
+used. The second return value is the badness of the generated box.
+
+\starttyping[option=LUA]
+function node.direct.hpack (
+    <t:direct> list
+)
+    return
+        <t:direct>, -- box
+        <t:integer> -- badness
+end
+
+function node.direct.hpack (
+    <t:direct>  list,
+    <t:integer> width,
+    <t:string>  info -- "additional" | "exactly"
+)
+    return
+        <t:direct>, -- box
+        <t:integer> -- badness
+end
+
+function node.direct.hpack (
+    <t:direct>  list,
+    <t:integer> width,
+    <t:string>  info, -- "additional" | "exactly"
+    <t:integer> direction
+)
+    return
+        <t:direct>, -- box
+        <t:integer> -- badness
+end
+\stoptyping
+
+% Caveat: there can be unexpected side|-|effects to this function, like migration
+% of \type {mark} and \type {insert} nodes. Also note that the content of \type {h}
+% is the original node list \type {n}: if you free \type {h} you will also free the
+% node list itself, unless you explicitly set the \type {list} field to \type {nil}
+% beforehand. And in a similar way, calling free on \type {n} will invalidate \type
+% {h} as well!
+
+The \type {vpack} function creates a new vlist by packaging the list that begins
+at node \type {n} into a vertical box. With only a single argument, this box is
+created using the natural height of its components. In the three argument form,
+\type {info} must be either \type {additional} or \type {exactly}, and \type {w}
+is the additional (\type {\vbox spread}) or exact (\type {\vbox to}) height to be
+used.
+
+\starttyping[option=LUA]
+function node.direct.vpack (
+    <t:direct> list
+)
+    return
+        <t:direct>, -- box
+        <t:integer> -- badness
+end
+
+function node.direct.vpack (
+    <t:direct>  list,
+    <t:integer> height,
+    <t:string>  info -- "additional" | "exactly"
+)
+    return
+        <t:direct>, -- box
+        <t:integer> -- badness
+end
+
+function node.direct.vpack (
+    <t:direct>  list,
+    <t:integer> height,
+    <t:string>  info, -- "additional" | "exactly"
+    <t:integer> direction
+)
+    return
+        <t:direct>, -- box
+        <t:integer> -- badness
+end
+\stoptyping
+
+This function calculates the natural in|-|line dimensions of the node list starting
+at node \type {first} and terminating just before node \type {last} (or the end of the
+list, if there is no second argument). The return values are scaled points.
+
+\starttyping[option=LUA]
+function node.direct.dimensions (
+    <t:direct> first,
+    <t:direct> last
+)
+    return
+        <t:integer>, -- width
+        <t:integer>, -- height
+        <t:integer>  -- depth
+end
+\stoptyping
+
+This alternative calling method takes glue settings into account and is especially useful for
+finding the actual width of a sublist of nodes that are already boxed, for
+example in code like this, which prints the width of the space in between the
+\type {a} and \type {b} as it would be if \type {\box0} was used as-is:
+
+\starttyping
+\setbox0 = \hbox to 20pt {a b}
+
+\directlua{print (node.dimensions(
+    tex.box[0].glueset,
+    tex.box[0].gluesign,
+    tex.box[0].glueorder,
+    tex.box[0].head.next,
+    node.tail(tex.box[0].head)
+)) }
+\stoptyping
+
+You need to keep in mind that this is one of the few places in \TEX\ where floats
+are used, which means that you can get small differences in rounding when you
+compare the width reported by \type {hpack} with \type {dimensions}.
+
+\starttyping[option=LUA]
+function node.direct.dimensions (
+    <t:number>  glueset,
+    <t:integer> gluesign
+    <t:integer> glueorder,
+    <t:direct>  first,
+    <t:direct>  last
+)
+    return
+        <t:integer>, -- width
+        <t:integer>, -- height
+        <t:integer>  -- depth
+end
+\stoptyping
+
+This alternative saves a few lookups and can be more convenient in some
+cases:
+
+\starttyping[option=LUA]
+function node.direct.rangedimensions (
+    <t:direct> parent,
+    <t:direct> first,
+    <t:direct> last
+)
+    return
+        <t:integer>, -- width
+        <t:integer>, -- height
+        <t:integer>  -- depth
+end
+\stoptyping
+
+If you only need the width, a simple and somewhat more efficient variant is this,
+where again \type {last} is optional:
+
+\starttyping[option=LUA]
+function node.direct.naturalwidth (
+    <t:direct> first,
+    <t:direct> last
+)
+    return <t:integer> -- width
+end
+\stoptyping
+
+More low level are the following helpers. They accept various kind of nodes
+\type {hlist}, \type {vlist}, \type {unset}, \type {rule}, \type {glyph} or \type {glue}
+(because these can have a leader).
+
+\starttyping[option=LUA]
+function node.direct.getwhd ( <t:direct> n )
+    return
+        <t:integer>, -- width
+        <t:integer>, -- height
+        <t:integer>  -- depth
+end
+\stoptyping
+
+In case of as glyph you can also get the expansion:
+
+\starttyping[option=LUA]
+function node.direct.getwhd ( <t:direct> n, <t:true> expansion )
+    return
+        <t:integer>, -- width
+        <t:integer>, -- height
+        <t:integer>, -- depth
+        <t:integer>  -- expansion
+end
+\stoptyping
+
+The \type {getwidth} accepts even more node types: \type {hlist}, \type {vlist},
+\type {unset}, \type {align}, \type {rule}, \type {glue}, \type {gluespec}, \type
+{glyph}, \type {kern} and \type {math} (surround).
+
+\starttyping[option=LUA]
+function node.direct.getwidth ( <t:direct> n )
+    return <t:integer> -- width
+end
+\stoptyping
+
+And for glyphs:
+
+\starttyping[option=LUA]
+function node.direct.getwidth ( <t:direct> n, <t:true> expansion )
+    return
+        <t:integer>,-- width
+        <t:integer> -- expansion
+end
+\stoptyping
+
+The getter for height operates on \type {hlist}, \type {vlist}, \type {unset},
+\type {rule}, \type {insert} and \type {fence}.
+
+\starttyping[option=LUA]
+function node.direct.getheight ( <t:direct> n )
+    return <t:integer> -- height
+end
+\stoptyping
+
+For the depth we have a different repertoire: \type {hlist}, \type {vlist}, \type
+{unset}, \type {rule}, \type {insert}, \type {glyph} and \type {fence}.
+
+\starttyping[option=LUA]
+function node.direct.getdepth ( <t:direct> n )
+    return <t:integer> -- depth
+end
+\stoptyping
+
+For \type {hlist}, \type {vlist}, \type {unset}, \type {rule}, \type {insert},
+\type {glyph} and \type {fence} we can get the total of height and depth:
+
+\starttyping[option=LUA]
+function node.direct.gettotal ( <t:direct> n )
+    return <t:integer> -- height + depth
+end
+\stoptyping
+
+Only for insert nodes we can set a total, because they only carry a height:
+
+\starttyping[option=LUA]
+function node.direct.settotal (
+    <t:direct>  insert,
+    <t:integer> total
+)
+    -- no return value
+end
+\stoptyping
+
+Only \type {hlist} and \type {vlist} have a (vertical or horizontal) shift:
+
+\starttyping[option=LUA]
+function node.direct.getshift ( <t:direct> n )
+    return <t:integer> -- shift
+end
+\stoptyping
+
+This one is only valid for \type {glyph} and \type {kern} nodes:
+
+\starttyping[option=LUA]
+function node.direct.getexpansion ( <t:direct> n )
+    return <t:integer> -- expansion
+end
+\stoptyping
+
+Before we move on we mention the setters:
+
+\starttyping[option=LUA]
+function node.direct.setwidth     ( <t:direct> n, <t:integer> width     ) end
+function node.direct.setheight    ( <t:direct> n, <t:integer> height    ) end
+function node.direct.setdepth     ( <t:direct> n, <t:integer> depth     ) end
+function node.direct.setshift     ( <t:direct> n, <t:integer> shift     ) end
+function node.direct.setexpansion ( <t:direct> n, <t:integer> expansion ) end
+\stoptyping
+
+The combined one ignores values that are no number, so passing (e.g.) \type {nil}
+or (nicer) \type {false} will retain the value.
+
+\starttyping[option=LUA]
+function nodedirect.setwhd (
+    <t:direct>  node,
+    <t:integer> width,
+    <t:integer> height,
+    <t:integer> depth,
+    -- no return values
+end
+\stoptyping
+
+These \type {hlist} and \type {vlist} nodes (but others as well have) a field
+called \type {list}:
+
+\starttyping[option=LUA]
+function node.direct.getlist ( <t:direct> b )
+    return <t:direct> -- list
+end
+
+function node.direct.setlist ( <t:direct> b, <t:direct> list )
+    -- nothing to return
+end
+\stoptyping
+
+When a list is packages, glue is resolved and the list node gets its glue properties
+set so that the backend can apply the stretch and shrink to the glue amount. There might
+be situations where you want to do this explicitly, which is why we provide:
+
+\starttyping[option=LUA]
+function node.direct.freeze ( <t:direct> b )
+    -- nothing to return
+end
+\stoptyping
+
+In \LUAMETATEX\ we can handle nested marks, inserts and adjusts, and
+pre and post material can get bound to a box. We can use these to access them:
+
+\starttyping[option=LUA]
+function node.direct.getpost ( <t:direct> b, <t:boolean> tailtoo )
+    return
+        <t:direct>, -- head
+        <t:direct>  -- tail
+end
+
+function node.direct.getpre ( <t:direct> b, <t:boolean> tailtoo )
+    return
+        <t:direct>, -- head
+        <t:direct>  -- tail
+end
+\stoptyping
+
+and these to set them, although they are unlikely candidates for that.
+
+\starttyping[option=LUA]
+function node.direct.setpost ( <t:direct> b, <t:direct> | <t:nil> ) end
+function node.direct.setpre  ( <t:direct> b, <t:direct> | <t:nil> ) end
+\stoptyping
+
+Anchors (source and targets) are just integer fields to some content nodes that
+we can set and get. They are experimental. They are set by either keywords or by
+\prm {boxanchor} and \prm {boxanchors}. The backend has to deal with these if
+used at all. (In \CONTEXT\ we use them for tracing math experiments and special
+trickery.)
+
+\starttyping[option=LUA]
+function node.direct.setanchors (
+    <t:direct>  list,   -- hlist or vlist
+    <t:integer> anchor,
+    <t:direct>  source, -- set, <t:true> keep, otherwise reset
+    <t:direct>  target  -- set, <t:true> keep, otherwise reset
+)
+    -- no return value
+end
+
+function node.direct.setanchors (
+    <t:direct> noad -- math
+    <t:direct> source -- set, <t:true> keep, otherwise reset
+)
+    -- no return value
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function node.direct.getanchors (
+    <t:direct> list  -- hlist or vlist
+)
+    return
+        <t:integer>, -- anchor
+        <t:integer>, -- source
+        <t:integer>, -- target
+        <t:integer>, -- anchor slice .....XXX
+        <t:integer>  -- anchor slice .XXXX...
+end
+
+function node.direct.getanchors (
+    <t:direct> noad -- math
+)
+    return
+        <t:integer> -- source
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Paragraphs}]
+
+In most usage scenarios the (initial) par node will only be used for checking the
+direction we start with, which then later will be updated by checking dir nodes. You can
+check if a node is the start of a paragraph with:
+
+\starttyping[option=LUA]
+function node.direct.startofpar ( <t:direct> n ) return <t:boolean> end
+\stoptyping
+
+Getting the state, that is a table of set fields, (currently) only makes sense
+for the initial par node. The table has more that 50 entries and some values
+(like the penalty arrays and shape) are tables themselves. You can get a limited
+version instead. We might add some more to small version when we feel the need.
+
+\starttyping[option=LUA]
+function node.direct.getparstate (
+    <t:direct> n
+)
+    return <t:table> -- a huge table (some 50 entries)
+end
+function node.direct.getparstate (
+    <t:direct>  n,
+    <t:boolean> limited
+)
+    return <t:table> -- a small table (some 10 entries)
+end
+\stoptyping
+
+A par shape is also a node, and it is copied into par node. You can patch the
+shape specification with new indentation and width values. When an existing shape
+is set, the options will be kept.
+
+\starttyping[option=LUA]
+function node.direct.getparstate ( <t:direct> par, <t:table> list) end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Specifications}]
+
+All nodes have a fixed size but some can have fields that are nodes themselves,
+which then are just \quote {pointers} to other nodes. These pointers are actually
+just indices into node memory. A specification node is different. Where in other
+engines these are nodes with a variable size, in \LUAMETATEX\ we just allocate
+memory for the variable part. This comes at a bit more overhead but pays back in
+less waste of fast accessible node memory.
+
+{\em maybe more here}
+
+\stopsubsection
+
+\startsubsection[title={Math}]
+
+We start with the function that runs the internal \quote {mlist to hlist}
+conversion that turns a the yet unprocessed math list into a horizontal list. The
+interface is the same as for the callback callback {mlisttohlist}.
+
+\starttyping[option=LUA]
+function node.direct.mlisttohlist (
+    <t:direct>  list,
+    <t:string>  displaytype,
+    <t:boolean> penalties
+)
+   <t:direct> -- result
+end
+\stoptyping
+
+When you have a horizontal list with math you can locate the relevant portion
+with:
+
+\starttyping[option=LUA]
+function node.direct.beginofmath ( <t:direct> n ) return <t:direct> end
+function node.direct.endofmath   ( <t:direct> n ) return <t:direct> end
+\stoptyping
+
+You can for instance use these helpers to skip over math in case you're
+processing text.
+
+The math noads have a nucleus and scripts. In \LUAMETATEX\ we have the usual
+super- and subscript but also prescripts and a primescript, so five scripts in
+total so naturally we have getters for these:
+
+\starttyping[option=LUA]
+function node.direct.getnucleus ( <t:direct> n ) return <t:direct> | <t:nil> end
+function node.direct.getprime   ( <t:direct> n ) return <t:direct> | <t:nil> end
+function node.direct.getsup     ( <t:direct> n ) return <t:direct> | <t:nil> end
+function node.direct.getsub     ( <t:direct> n ) return <t:direct> | <t:nil> end
+function node.direct.getsuppre  ( <t:direct> n ) return <t:direct> | <t:nil> end
+function node.direct.getsubpre  ( <t:direct> n ) return <t:direct> | <t:nil> end
+\stoptyping
+
+plus:
+
+\starttyping[option=LUA]
+function node.direct.getscripts ( <t:direct> n )
+    return
+        <t:direct>, -- primescript
+        <t:direct>, -- superscript
+        <t:direct>, -- subscript
+        <t:direct>, -- superprescript
+        <t:direct>  -- subprescript
+end
+\stoptyping
+
+These are complemented by setters. When the second argument is not passes (or nil)
+the field is reset.
+
+\starttyping[option=LUA]
+function node.direct.setnucleus ( <t:direct> n, <t:direct> nucleus        ) end
+function node.direct.setprime   ( <t:direct> n, <t:direct> primescript    ) end
+function node.direct.setsup     ( <t:direct> n, <t:direct> superscript    ) end
+function node.direct.setsub     ( <t:direct> n, <t:direct> subscript      ) end
+function node.direct.setsuppre  ( <t:direct> n, <t:direct> superprescript ) end
+function node.direct.setsubpre  ( <t:direct> n, <t:direct> subprescript   ) end
+\stoptyping
+
+And of course:
+
+\starttyping[option=LUA]
+function node.direct.getscripts (
+    <t:direct> primescript,
+    <t:direct> superscript,
+    <t:direct> subscript,
+    <t:direct> superprescript,
+    <t:direct> subprescript
+)
+    -- no return values
+end
+\stoptyping
+
+In the discretionaries subsection we mention accessing pre, post and replace
+fields. These functions can also be used for \type {choice} nodes. Discussing
+this is currently beyond this manual.
+
+There are a lot of functions that access fields and we discuss then in an
+arbitrary order. We also assume that you know what (math construct or concept)
+you're dealing with. Of course more generic helpers (for instance for setting or
+getting options) are not mentioned here.
+
+Math classes play an important role in (especially) applying math spacing and
+penalties. In \LUAMETATEX\ all relevant nodes (including boxes, discretionaries
+and glyphs) carry a class and when applicable they have a main, main and left
+class. Classes are implicit (radical, accent, fraction, fence), but they can be
+overruled by keywords. Node types with three values are: simple, radical,
+fraction, accent and fence, and nodes with a single class are: glyph, disc,
+hlist, vlist and delimiter.
+
+\starttyping[option=LUA]
+function node.direct.getclass ( <t:direct> node )
+    return
+        <t:integer>, -- class       (main)
+        <t:integer>, -- left class  (when applicable)
+        <t:integer>  -- right class (when applicable)
+end
+
+function node.direct.setclass (
+    <t:direct>  node,
+    <t:integer> class,
+    <t:integer> leftclass,  -- when applicable
+    <t:integer> rightclass, -- when applicable
+)
+    -- no return values
+end
+\stoptyping
+
+You can get and set the family of various nodes, including rules:
+
+\starttyping[option=LUA]
+function node.direct.getfam ( <t:direct> node )
+    return <t:integer>
+end
+
+function node.direct.setfam
+    <t:direct>  node,
+    <t:integer> family
+)
+     -- no return value
+end
+\stoptyping
+
+Choices have four fields that are calculated and then carried along until the
+machinery knows which one to use. Because a \prm {mathchoice} takes four
+argument, you pass 1 (display), 2 (text), 3 (script) or 4 (scriptscript) as field
+number.
+
+\starttyping[option=LUA]
+function node.direct.getchoice (
+    <t:direct>  choice,
+    <r:integer> field
+)
+    return <t:direct> -- display text script or scriptscript
+end
+
+function node.direct.setchoice (
+    <t:direct>  choice,
+    <r:integer> field,
+    <t:direct>  value,
+)
+    -- no return values
+end
+\stoptyping
+
+These four deal with fractions and their name tells what we get and set:
+
+\starttyping[option=LUA]
+function node.direct.getnumerator ( <t:direct> fraction )
+    return <t:direct>
+end
+
+function node.direct.getdenominator ( <t:direct> fraction )
+    return <t:direct>
+end
+
+function node.direct.setnumerator
+    <t:direct> fraction,
+    <t:direct> value
+)
+    -- no return values
+end
+
+function node.direct.setdenominator
+    <t:direct> fraction,
+    <t:direct> value
+)
+    -- no return values
+end
+\stoptyping
+
+Radicals have a nucleus, scripts, delimiters and often quite noticeable, a degree anchored
+on an edge.
+
+\starttyping[option=LUA]
+function node.direct.getdegree ( <t:direct> node )
+    return <t:direct>
+end
+
+function node.direct.setdegree ( <t:direct> node, <t:direct> degree )
+    -- no return values
+end
+\stoptyping
+
+These are generic downward compatible delimiter accessors from the time that we
+only had one: fraction, fence, radical and accent.
+
+\starttyping[option=LUA]
+function node.direct.getdelimiter ( <t:direct> node )
+    return <t:direct>
+end
+
+function node.direct.setdelimiter ( <t:direct> node, <t:direct> delimiter )
+    -- no return values
+end
+\stoptyping
+
+Fraction and (indeed) radical nodes have left and right delimiters:
+
+\starttyping[option=LUA]
+function node.direct.getleftdelimiter ( <t:direct> node )
+    return <t:direct>
+end
+
+function node.direct.getrightdelimiter ( <t:direct> node )
+    return <t:direct>
+end
+
+function node.direct.setleftdelimiter (
+    <t:direct> node,
+    <t:direct> value
+)
+    -- no return values
+end
+
+function node.direct.setrightdelimiter (
+    <t:direct> node,
+    <t:direct> value
+)
+    -- no return values
+end
+\stoptyping
+
+Radical and fence nodes have top and bottom delimiters:
+
+\starttyping[option=LUA]
+function node.direct.gettopdelimiter ( <t:direct> node )
+    return <t:direct>
+end
+
+function node.direct.getbottomdelimiter ( <t:direct> node )
+    return <t:direct>
+end
+
+function node.direct.settopdelimiter (
+    <t:direct> node,
+    <t:direct> value
+)
+    -- no return values
+end
+
+function node.direct.setbottomdelimiter (
+    <t:direct> node,
+    <t:direct> value
+)
+    -- no return values
+end
+\stoptyping
+
+Historically accents have a character as delimiter. All these top and bottom
+helpers accept multiple nodes types. Although the last four are not needed, for
+now we keep them because we always had them.
+
+\starttyping[option=LUA]
+function node.direct.gettop    ( <t:direct> node ) return <t:direct> end
+function node.direct.getbottom ( <t:direct> node ) return <t:direct> end
+
+function node.direct.settop    ( <t:direct> node, <t:direct> value ) end
+function node.direct.setbottom ( <t:direct> node, <t:direct> value ) end
+\stoptyping
+
+% Not used so it might go away.
+%
+% \starttyping[option=LUA]
+% function node.direct.makeextensible (
+%     <t:integer> font,
+%     <t:integer> character,
+%     <t:integer> target,
+%     <t:integer> overlap,
+%     <t:boolean> horizontal,
+%     <t:direct>  attrlist
+% )
+%     return <t:direct>
+% end
+% \stoptyping
+
+\stopsubsection
+
+\startsubsection[title={MVL}]
+
+Some properties of the currently used main vertical list can be fetched with:
+
+\starttyping[option=LUA]
+function node.direct.getmvllist (
+    -- currently no parameters
+)
+    return
+        <t:direct>,  -- head
+        <t:direct>,  -- tail
+        <t:integer> -- mvl
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Balancing}]
+
+The \type {node.direct.vbalance} function will either disappear or get accompanied
+by related helpers (mirroring primitives); it depends on what \CONTEXT\ needs.
+
+Updating marks is done with the following set of helpers, that just call the code
+that does the same before handing over content to the output routine:
+
+\starttyping[option=LUA]
+function nodes.direct.updatetopmarks ( )
+    return <t:boolean> -- done
+end
+
+function nodes.direct.updatefirstmarks ( )
+    return <t:boolean> -- done
+end
+
+function nodes.direct.updatefirstandbotmark ( <t:direct> box )
+    -- no return value
+end
+
+function nodes.direct.updatemarks ( <t:direct> box )
+    return <t:boolean> -- done
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={\SYNCTEX}]
+
+You can set and query the \SYNCTEX\ fields, a file number aka tag and a line
+number, for a \type {glue}, \type {kern}, \type {hlist}, \type {vlist}, \type
+{rule} and \type {math} nodes as well as \type {glyph} nodes (although this last
+one is not used in native \SYNCTEX).
+
+\starttyping[option=LUA]
+function node.direct.setsynctexfields ( <t:integer> fileid, <t:integer> line )
+    -- no return values
+end
+
+function node.direct.getsynctexfields ( <t:direct> n )
+    return
+        <t:integer>, -- fileid
+        <t:integer>  -- line
+end
+\stoptyping
+
+Of course you need to know what you're doing as no checking on sane values takes
+place. Also, the \SYNCTEX\ interpreter used in editors is rather peculiar and has
+some assumptions (heuristics) and there are different incompatible versions
+floating around. Even more important to notice is that the engine doesn't do
+anything with this so support is upto \LUA.
+
+\stopsubsection
+
+\startsubsection[title={Two access models}]
+
+Deep down in \TEX\ a node has a number which is a numeric entry in a memory
+table. In fact, this model, where \TEX\ manages memory is real fast and one of
+the reasons why plugging in callbacks that operate on nodes is quite fast too.
+Each node gets a number that is in fact an index in the memory table and that
+number often is reported when you print node related information. You go from
+user data nodes and there numeric references and back with:
+
+\starttyping[option=LUA]
+function node.todirect ( <t:node>   n) return <t:direct> end
+function node.tonode   ( <t:direct> d) return <t:node>   end
+\stoptyping
+
+The user data model is rather robust as it is a virtual interface with some
+additional checking while the more direct access which uses the node numbers
+directly. However, even with user data you can get into troubles when you free
+nodes that are no longer allocated or mess up lists. If you apply \type
+{tostring} to a node you see its internal (direct) number and id.
+
+The userdata model provides key based access while the direct model always
+accesses fields via functions:
+
+\starttyping[option=LUA]
+local c = nodeobject.char
+local c = node.direct.getfield(nodenumber,"char")
+\stoptyping
+
+Assigning a value can be done with \type {setfield}. We have two versions of
+each: one in the \type {node} lib and one in \type {node.direct}. The user is
+responsible for proper assignments, although we do test for the validity of
+userdata nodes and direct node references.
+
+If you use the direct model, even if you know that you deal with numbers, you
+should not depend on that property but treat it as an abstraction just like
+traditional nodes. In fact, the fact that we use a simple basic datatype has the
+penalty that less checking can be done, but less checking is also the reason why
+it's somewhat faster. An important aspect is that one cannot mix both methods,
+but you can cast both models. So, multiplying a node number makes no sense.
+
+So our advice is: use the indexed (table) approach when possible and investigate
+the direct one when speed might be a real issue. For that reason \LUATEX\ also
+provide the \type {get*} and \type {set*} functions in the top level node
+name space. There is a limited set of getters. When implementing this direct
+approach the regular index by key variant was also optimized, so direct access
+only makes sense when nodes are accessed millions of times (which happens in some
+font processing for instance).
+
+We're talking mostly of getters because setters are less important. Documents
+have not that many content related nodes and setting many thousands of properties
+is hardly a burden contrary to millions of consultations.
+
+Normally you will access nodes like this:
+
+\starttyping
+local next = current.next
+if next then
+    -- do something
+end
+\stoptyping
+
+Here \type {next} is not a real field, but a virtual one. Accessing it results in
+a metatable method being called. In practice it boils down to looking up the node
+type and based on the node type checking for the field name. In a worst case you
+have a node type that sits at the end of the lookup list and a field that is last
+in the lookup chain. However, in successive versions of \LUATEX\ these lookups
+have been optimized and the most frequently accessed nodes and fields have a
+higher priority.
+
+In the direct name space there are more helpers and most of them are accompanied
+by setters. The getters and setters are clever enough to see what node is meant.
+We don't deal with whatsit nodes: their fields are always accessed by name. It
+doesn't make sense to add getters for all fields, we just identifier the most
+likely candidates. In complex documents, many node and fields types never get
+seen, or seen only a few times, but for instance glyphs are candidates for such
+optimization.
+
+In previous sections we only show the functions in the \type {node.direct}
+name space. The following functions are available in both \type {node} and \type
+{node.direct}:
+
+\startthreerows
+\startluacode
+    context.starttabulate { "|T|" }
+    for k, v in table.sortedhash(node.direct) do
+        if type(v) == "function" and node[k] then
+            context.NC() context(k)
+            context.NC() context.NR()
+        end
+    end
+    context.stoptabulate()
+\stopluacode
+\stopthreerows
+
+In \CONTEXT\ these are duplicated in \type {nodes.nuts} so that is the reference.
+Quite some functions gets mapped onto the \type {nodes} name space. In addition we
+emulate some userdata functions and add some of our own. We show them here because
+this manual takes \CONTEXT\ as reference.
+
+\starttworows
+\startluacode
+    context.starttabulate { "|T|c|c|" }
+        context.BC() context("node.direct")
+        context.BC() context("node")
+        context.BC() context("nodes")
+        context.NC() context.NR()
+        context.NC()
+        context.NC()
+        context.NC()
+        context.NC() context.NR()
+        -- todo: add a little space here
+        for k, v in table.sortedhash(node.direct) do
+            if type(v) == "function" then
+                context.NC() context(k)
+                context.NC() if node [k] then context("$⋆$") end
+                context.NC() if nodes[k] then context("$⋆$") end
+                context.NC() context.NR()
+            end
+        end
+    context.stoptabulate()
+\stopluacode
+\stoptworows
+
+The following functions are in the \CONTEXT\ \type {nodes} name space but don't
+come from the library. Again, we show them here because \CONTEXT\ is the
+reference.
+
+\starttworows
+\startluacode
+    context.starttabulate { "|T|c|c|" }
+        context.BC() context("nodes")
+        context.BC() context("nodes.nuts")
+        context.BC() context("node")
+        context.NC() context.NR()
+        context.NC()
+        context.NC()
+        context.NC()
+        context.NC() context.NR()
+        for k, v in table.sortedhash(nodes) do
+            if type(v) == "function" and not node.direct[k] then
+                context.NC() context(k)
+                context.NC() if nodes.nuts[k] then context("$⋆$") end
+                context.NC() if node      [k] then context("$⋆$") end
+                context.NC() context.NR()
+            end
+        end
+    context.stoptabulate()
+\stopluacode
+\stoptworows
+
+We have quite some helpers and some accept different node types. Here is the
+repertoire:
+
+\startluacode
+    context.starttabulate { "|lT|plT|" }
+    for name, usage in table.sortedhash(moduledata.repertoire) do
+        context.NC() context(name)
+        context.NC() context("% t",table.sortedkeys(usage))
+        context.NC() context.NR()
+    end
+    context.stoptabulate()
+\stopluacode
+
+Here are some more helpers, they live in the \type {direct} name space but are
+user data aware too.
+
+\starttyping[option=LUA]
+function node.direct.isdirect       ( <t:node> | <t:direct> ) return <t:boolean> end
+function node.direct.isnode         ( <t:node> | <t:direct> ) return <t:boolean> end
+function node.direct.isvalid        ( <t:node> | <t:direct> ) return <t:boolean> end
+function node.direct.tostring       ( <t:node> | <t:direct> ) return <t:boolean> end
+function node.direct.tovaliddirect  ( <t:node> | <t:direct> ) return <t:direct> end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title={Special lists}]
+
+There are various lists where content can be appended to. These can be global or
+local to the current situation at hand.
+
+\startcolumns[n=2]
+\starttabulate
+\NC \type {pageinserthead}    \NC page builder \NC \NR
+\NC \type {contributehead}    \NC current (vertical) list \NC \NR
+\NC \type {pagehead}          \NC page builder \NC \NR
+\NC \type {temphead}          \NC internal \NC \NR
+\NC \type {holdhead}          \NC internal \NC \NR
+\NC \type {postadjusthead}    \NC boxes \NC \NR
+\NC \type {preadjusthead}     \NC boxes \NC \NR
+\NC \type {postmigratehead}   \NC boxes \NC \NR
+\NC \type {premigratehead}    \NC boxes \NC \NR
+\NC \type {alignhead}         \NC alignments \NC \NR
+\NC \type {pagediscardshead}  \NC page builder \NC \NR
+\NC \type {splitdiscardshead} \NC vertical box splitter \NC \NR
+\stoptabulate
+\stopcolumns
+
+You can check is a node is a special list head with:
+
+\starttyping[option=LUA]
+function node.direct.isspeciallist (
+    <t:direct> n
+)
+    return <t:boolean>
+end
+\stoptyping
+
+Getting such a node is done with
+
+\starttyping[option=LUA]
+function node.direct.getspeciallist (
+    <t:string> | <t:integer> id
+)
+    return
+        <t:direct>, -- head
+        <t:direct>  -- tail (if relevant)
+end
+\stoptyping
+
+and setting with:
+
+\starttyping[option=LUA]
+function node.direct.setspeciallist (
+    <t:string> | <t:integer> id,
+    <t:direct>
+)
+    -- no return value
+end
+\stoptyping
+
+When messing with them, it is the user's responsibility to make sure that these
+lists remain valid, for instance horizontal and vertical lists have expectations
+with regards to the kind of nodes they contain.
+
+\stopsubsection
+
+\startsubsection[title={Properties}]
+
+Attributes are a convenient way to relate extra information to a node. You can
+assign them at the \TEX\ end as well as at the \LUA\ end and consult them at the
+\LUA\ end. One big advantage is that they obey grouping. They are linked lists
+and normally checking for them is pretty efficient, even if you use a lot of
+them. A macro package has to provide some way to manage these attributes at the
+\TEX\ end because otherwise clashes in their usage can occur.
+
+Each node also can have a properties table and you can assign values to this
+table using the \type {setproperty} function and get properties using the \type
+{getproperty} function. Managing properties is way more demanding than managing
+attributes.
+
+Take the following example:
+
+\starttyping
+\directlua {
+    local n = node.new("glyph")
+
+    node.setproperty(n,"foo")
+    print(node.getproperty(n))
+
+    node.setproperty(n,"bar")
+    print(node.getproperty(n))
+
+    node.free(n)
+}
+\stoptyping
+
+This will print \type {foo} and \type {bar} which in itself is not that useful
+when multiple mechanisms want to use this feature. A variant is:
+
+\starttyping
+\directlua {
+    local n = node.new("glyph")
+
+    node.setproperty(n,{ one = "foo", two = "bar" })
+    print(node.getproperty(n).one)
+    print(node.getproperty(n).two)
+
+    node.free(n)
+}
+\stoptyping
+
+This time we store two properties with the node. It really makes sense to have a
+table as property because that way we can store more. But in order for that to
+work well you need to do it this way:
+
+\starttyping
+\directlua {
+    local n = node.new("glyph")
+
+    local t = node.getproperty(n)
+
+    if not t then
+        t = { }
+        node.setproperty(n,t)
+    end
+    t.one = "foo"
+    t.two = "bar"
+
+    print(node.getproperty(n).one)
+    print(node.getproperty(n).two)
+
+    node.free(n)
+}
+\stoptyping
+
+Here our own properties will not overwrite other users properties unless of
+course they use the same keys. So, eventually you will end up with something:
+
+\starttyping
+\directlua {
+    local n = node.new("glyph")
+
+    local t = node.getproperty(n)
+
+    if not t then
+        t = { }
+        node.setproperty(n,t)
+    end
+    t.myself = { one = "foo", two = "bar" }
+
+    print(node.getproperty(n).myself.one)
+    print(node.getproperty(n).myself.two)
+
+    node.free(n)
+}
+\stoptyping
+
+This assumes that only you use \type {myself} as subtable. The possibilities are
+endless but care is needed. For instance, the generic font handler that ships
+with \CONTEXT\ uses the \type {injections} subtable and you should not mess with
+that one!
+
+There are a few helper functions that you normally should not touch as user: \typ
+{getpropertiestable} and will give the table that stores properties (using
+direct entries) and you can best not mess too much with that one either because
+\LUAMETATEX\ itself will make sure that entries related to nodes will get wiped when
+nodes get freed, so that the \LUA\ garbage collector can do its job. In fact, the
+main reason why we have this mechanism is that it saves the user (or macro
+package) some work. One can easily write a property mechanism in \LUA\ where
+after a shipout properties gets cleaned up but it's not entirely trivial to make
+sure that with each freed node also its properties get freed, due to the fact
+that there can be nodes left over for a next page. And having a callback bound to
+the node deallocator would add way to much overhead.
+
+When we copy a node list that has a table as property, there are several
+possibilities: we do the same as a new node, we copy the entry to the table in
+properties (a reference), we do a deep copy of a table in the properties, we
+create a new table and give it the original one as a metatable. After some
+experiments (that also included timing) with these scenarios we decided that a
+deep copy made no sense, nor did nilling. In the end both the shallow copy and
+the metatable variant were both ok, although the second one is slower. The most
+important aspect to keep in mind is that references to other nodes in properties
+no longer can be valid for that copy. We could use two tables (one unique and one
+shared) or metatables but that only complicates matters.
+
+When defining a new node, we could already allocate a table but it is rather easy
+to do that at the lua end e.g.\ using a metatable \type {__index} method. That
+way it is under macro package control. When deleting a node, we could keep the
+slot (e.g. setting it to false) but it could make memory consumption raise
+unneeded when we have temporary large node lists and after that only small lists.
+Both are not done because in the end this is what happens now: when a node is
+copied, and it has a table as property, the new node will share that table. The
+copy gets its own table with the original table as metatable.
+
+A few more experiments were done. For instance: copy attributes to the properties
+so that we have fast access at the \LUA\ end. In the end the overhead is not
+compensated by speed and convenience, in fact, attributes are not that slow when
+it comes to accessing them. So this was rejected.
+
+Another experiment concerned a bitset in the node but again the gain compared to
+attributes could be neglected and given the small amount of available bits it also
+demands a pretty strong agreement over what bit represents what, and this is
+unlikely to succeed in the \TEX\ community. It doesn't pay off.
+
+Just in case one wonders why properties make sense: it is not so much speed that
+we gain, but more convenience: storing all kinds of (temporary) data in attributes
+is no fun and this mechanism makes sure that properties are cleaned up when a
+node is freed. Also, the advantage of a more or less global properties table is
+that we stay at the \LUA\ end. An alternative is to store a reference in the node
+itself but that is complicated by the fact that the register has some limitations
+(no numeric keys) and we also don't want to mess with it too much.
+
+\stopsubsection
+
+\startsubsection[title=Private]
+
+When you look into the source or check what functions are in libraries, you might
+run into undocumented features. Of course there can be experimental code, and you
+should not use that but there are also features that for instance help documenting
+or checking. Take for instance this one. When we pass \type {true} there will be
+no error message when you use \type {setfield} or \type {getfield} but an error
+code will set instead.
+
+\starttyping[option=LUA]
+function node.setfielderror ( <t:boolean )
+    -- no return values
+end
+\stoptyping
+
+You can ask the last error with:
+
+\starttyping[option=LUA]
+function node.getfielderror ( )
+    return <t:integer> -- the last set error
+end
+\stoptyping
+
+Valid return values are available with:
+
+\starttyping[option=LUA]
+function node.getnodeerrorvalues ( )
+    return <t:table> -- the last set error
+end
+\stoptyping
+
+The table contains:
+
+\showenginevalues[4]{nodeerrorvalues}
+
+But \unknown\ these functions and values can change as we move forward so you
+should not use them, or at least, don't complain.
+
+\stopsubsection
+
+\stopsection
+
+\stopdocument

@@ -28,7 +28,8 @@ Le Sage propuso que la gravedad es causada por partículas "ultramundanas" que b
 | `LeSage-v1.0.0.py` | Pantalla dividida básica (eCEL vs Le Sage) |
 | `LeSage-v1.0.1.py` | Lluvia continua 10 segundos |
 | `LeSage-v1.0.2.py` | Lluvia rotativa (360°) + isotrópica |
-| `LeSage-v1.0.3.py` | **ACTUAL**: Configurable via YAML |
+| `LeSage-v1.2.2.2.py` | **ESTABLE**: Heatmap matplotlib + calentamiento por impactos |
+| `LeSage-v1.0.3.py` | Configurable via YAML |
 | `config_lesage.yaml` | Configuración de la lluvia |
 
 ---

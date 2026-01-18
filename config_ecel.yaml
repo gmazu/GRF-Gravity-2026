@@ -81,7 +81,16 @@ luz:
     - "#57ff3b"
     - "#2fd3ff"
     - "#3b5bff"
-  stroke_width: 6
-  glow_widths: [14, 10, 8]
-  glow_opacities: [0.15, 0.2, 0.25]
-  core_opacity: 0.85
+  stroke_width: 7
+  glow_widths: [30, 22, 16, 10]
+  glow_opacities: [0.06, 0.1, 0.18, 0.28]
+  core_opacity: 0.95
+  dispersion:
+    enabled: true
+    max_offset: 1.1
+    base_offset: 0.03
+    ramp_power: 1.2
+    stroke_width: 5
+    opacity: 0.85
+    num_rays: 48
+    tail_boost: 1.4

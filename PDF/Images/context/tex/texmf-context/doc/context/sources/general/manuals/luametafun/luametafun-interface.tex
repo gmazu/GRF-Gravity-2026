@@ -1,0 +1,382 @@
+% language=us runpath=texruns:manuals/luametafun
+
+\environment luametafun-style
+
+\startcomponent luametafun-interface
+
+\startchapter[title={Interface}]
+
+\startsection[title=Macros]
+
+Because graphic solutions are always kind of personal or domain driven it makes not
+much sense to cook up very generic solutions. If you have a project where \METAPOST\
+can be of help, it also makes sense to spend some time on implementing the basics that
+you need. In that case you can just copy and tweak what is there. The easiest way to
+do that is to make a test file and use:
+
+\starttyping[option=TEX]
+\startMPpage
+    % your code
+\stopMPpage
+\stoptyping
+
+Often you don't need to write macros, and standard drawing commands will do the
+job, but when you find yourself repeating code, a wapper might make sense. And
+this is why we have this key|/|value interface: it's easier to abstract your
+settings than to pass them as (expression or text) arguments to a macro,
+especially when there are many.
+
+You can find many examples of the key|/|value driven user interface in the source
+files and these are actually not that hard to understand when you know a bit of
+\METAPOST\ and the additional macros that come with \METAFUN. In case you wonder
+about overhead: the performance of this mechanism is pretty good.
+
+Although the parameter handler runs on top of the \LUA\ interface, you don't need
+to use \LUA\ unless you find that \METAPOST\ can't do the job. I won't give
+examples of coding because I think that the source of \METAFUN\ provides enough
+clues, especially the file \type {mp-lmtx.mpxl}. As the name suggests this is
+part of the \CONTEXT\ version \LMTX, which runs on top of \LUAMETATEX. I leave it
+open if I will backport this functionality to \LUATEX\ and therefore \MKIV.
+
+An excellent explanation of this interface can be found at:
+
+\starttyping
+https://adityam.github.io/context-blog/post/new-metafun-interface/
+\stoptyping
+
+So (at least for now) here I can stick to just mentioning the currently stable
+interface macros:
+
+\starttabulate[|T|l|pl|]
+\FL
+\NC presetparameters \NC \type {name [...]} \NC
+    Assign default values to a category of parameters. Sometimes it makes sense
+    not to set a default, because then you can check if a parameter has been set
+    at all.
+    \NC \NR
+\NC applyparameters \NC \type {name macro} \NC
+    This prepares the parameter handler for the given category and calls the
+    given macro when that is done.
+    \NC \NR
+\NC getparameters \NC \type {name [...]} \NC
+    The parameters given after the category name are set.
+    \NC \NR
+\ML
+\NC hasparameter \NC \type {names} \NC
+    Returns \type {true} when a parameter is set, and \type {false} otherwise.
+    \NC \NR
+\NC hasoption \NC \type {names options} \NC
+    Returns \type {true} when there is overlap in given options, and \type
+    {false} otherwise.
+    \NC \NR
+\ML
+\NC getparameter \NC \type {names} \NC
+    Resolves the parameter with the given name. because a parameter itself can
+    have a parameter list you can pass additional names to reach the final
+    destination.
+    \NC \NR
+\NC getparameterdefault \NC \type {names} \NC
+    Resolves the parameter with the given name. because a parameter itself can
+    have a parameter list you can pass additional names to reach the final
+    destination. The last value is used when no parameter is found.
+    \NC \NR
+\ML
+\NC getparametercount \NC \type {names} \NC
+    Returns the size if a list (array).
+    \NC \NR
+\NC getmaxparametercount \NC \type {names} \NC
+    Returns the size if a list (array) but descends into lists to find the largest size
+    of a sublist.
+    \NC \NR
+\ML
+\NC getparameterpath \NC \type {names string boolean} \NC
+    Returns the parameter as path. The optional string is one of \type {--},
+    \type {..} or \type {...} and the also optional boolean will force a closed
+    path.
+    \NC \NR
+\NC getparameterpen \NC \type {names} \NC
+    Returns the parameter as pen (path).
+    \NC \NR
+\NC getparametertext \NC \type {names boolean} \NC
+    Returns the parameter as string. The boolean can be used to force prepending
+    a so called \type {\strut}.
+    \NC \NR
+\ML
+\NC pushparameters \NC \type {category} \NC
+    Pushed the given (sub) category onto the stack so that we don't need to give
+    the category each time.
+    \NC \NR
+\NC popparameters \NC \NC
+    Pops the current (sub) category from the stack.
+    \NC \NR
+\LL
+\stoptabulate
+
+Most commands accept a list of strings separated by one or more spaces, The
+resolved will then stepwise descend into the parameter tree. This means that a
+parameter itself can refer to a list. When a value is an array and the last name
+is a number, the value at the given index will be returned.
+
+\starttyping
+"category" "name" ... "name"
+"category" "name" ... number
+\stoptyping
+
+The \type {category} is not used when we have pushed a (sub) category which can
+save you some typing and also is more efficient. Of course than can mean that you
+need to store values at a higher level when you need them at a deeper level.
+
+There are quite some extra helpers that relate to this mechanism, at the
+\METAPOST\ end as well as at the \LUA\ end. They aim for instance at efficiently
+dealing with paths and can be seen at work in the mentioned module.
+
+There is one thing you should notice. While \METAPOST\ has numeric, string,
+boolean and path variables that can be conveniently be passed to and from \LUA,
+communicating colors is a bit of a hassle. This is because \RGB\ and \CMYK\
+colors and gray scales use different types. For this reason it is strongly
+recommended to use strings that refer to predefined colors instead. This also
+enforces consistency with the \TEX\ end. As convenience you can define colors at
+the \METAFUN\ end.
+
+\startbuffer
+\startMPcode
+    definecolor [ name = "MyColor", r = .5, g = .25, b = .25 ]
+
+    fill fullsquare xyscaled (TextWidth,5mm) withcolor "MyColor" ;
+\stopMPcode
+\stopbuffer
+
+\typebuffer[option=TEX]
+
+\startlinecorrection
+\getbuffer
+\stoplinecorrection
+
+\stopsection
+
+\startsection[title=Units]
+
+Many dimensions used at the \TEX\ end are also available in \METAFUN. Examples
+are \typ {TextWidth}, \typ {EmHeight} and \typ {StrutHeight}. In \MKIV\ they are
+numeric variables that get set every graphic but in \MKXL\ these are not numeric
+variables but (hidden) \LUA\ calls so they can't be set at the \METAPOST\ end;
+but they are injected as numeric quantities so you can efficiently them in
+calculations.
+
+In \METAPOST\ examples you often find \type {u} being used as unit, like:
+
+\starttyping
+u := 1cm ; draw (u,0) -- (u,u) -- (3u,0);
+\stoptyping
+
+However, what if you want to set such a unit at the \TEX\ end? For this purpose
+we have a dedicated variable, which is demonstrated in the following examples.
+First we set a variable:
+
+\starttyping[option=TEX]
+\uunit=1cm
+\stoptyping
+
+\typebuffer[option=TEX]
+
+and next we apply it:
+
+\startbuffer
+\framed[offset=.2uu,strut=no]
+    \bgroup
+        \startMPcode
+            fill fullcircle scaled (2uu) withcolor "darkblue" ;
+            fill fullcircle scaled (8mm) withcolor "middlegray" ;
+        \stopMPcode
+    \egroup
+\stopbuffer
+
+\typebuffer[option=TEX]
+
+The \type {\uunit} dimension register is hooked into \TEX's unit parser as type
+{uu} (user unit). At the \METAPOST\ end \type {uu} is effectively a \LUA\ call
+that fetches the of the dimension from the \TEX end and presents it a a numeric.
+
+\startlinecorrection \uunit=1cm \getbuffer \stoplinecorrection
+
+When we set
+
+\starttyping[option=TEX]
+\uunit=5mm
+\stoptyping
+
+The same code gives::
+
+\startlinecorrection \uunit=5mm \getbuffer \stoplinecorrection
+
+\startbuffer
+\framed[offset=.1uu,strut=no]
+    \bgroup
+        \startMPcode
+            save uu ; numeric uu ; uu := 5mm ;
+            fill fullcircle scaled (3uu) withcolor "darkred"  ;
+            fill fullcircle scaled (2uu) withcolor "middlegray" ;
+        \stopMPcode
+    \egroup
+\stopbuffer
+
+\typebuffer[option=TEX]
+
+This demonstrates that we can overload \type {uu} but make sure to save it first
+so that later it is available again.
+
+\startlinecorrection \getbuffer \stoplinecorrection
+
+\stopsection
+
+\startsection[title=Paths from \LUA]
+
+Passing paths to \METAPOST\ using specific properties is sort of tricky because
+once the points are set, the solver will be applied. This translates curls,
+tensions and|/|or explicit control points into the final control points.
+
+In the next example we show a few interfaces. Not all of that might be perfect
+yes but in most cases it works out.
+
+\startbuffer
+\startluacode
+    local shapes = { }
+    shapes[1] = { {0,0}, {-1,-1}, {-1, 0}, {0,0}, "cycle" }
+    shapes[2] = { {0,1}, { 1, 0}, { 1,-1}, {0,1}, "cycle" }
+    shapes[3] = { {0,2}, { 2, 0}, { 2, 1}, {0,2}, "cycle" }
+    shapes[4] = {
+        {0,0}, {-1,-1}, {-1, 0}, {0,0}, "cycle", "append",
+        {0,1}, { 1, 0}, { 1,-1}, {0,1}, "cycle", "append",
+        {0,2}, { 2, 0}, { 2, 1}, {0,2}, "cycle", "append",
+    }
+    shapes[5] = {
+        { path = shapes[1], append = true }, -- curled = true, tight = true
+        { path = shapes[2], append = true }, -- curled = true, tight = true
+        { path = shapes[3], append = true }, -- curled = true, tight = true
+    }
+    function mp.getshapepath(n)
+        mp.inject.path(shapes[n])
+    end
+\stopluacode
+\stopbuffer
+
+\typebuffer[option=TEX] \getbuffer
+
+\startbuffer
+\startMPcode
+    path p ;
+    p := lua.mp.getshapepath(1) scaled 1cm ;
+    draw p withpen pencircle scaled 2pt withcolor red ;
+    p := lua.mp.getshapepath(2) scaled 1cm ;
+    draw p withpen pencircle scaled 2pt withcolor blue ;
+    p := lua.mp.getshapepath(3) scaled 1cm ;
+    draw p withpen pencircle scaled 2pt withcolor green ;
+    p := lua.mp.getshapepath(4) scaled 1cm &&cycle ;
+    fill p withcolor 0.9 ;
+    draw p withpen pencircle scaled 1pt withcolor 0.7 ;
+    p := lua.mp.getshapepath(5) scaled 1cm ;
+    draw p withpen pencircle scaled .25pt withcolor 0.2 ;
+\stopMPcode
+\stopbuffer
+
+\typebuffer[option=TEX]
+
+Especially cycling and appending needs to be done precisely in order not to get
+redundant (or bad) points.
+
+\startlinecorrection \getbuffer \stoplinecorrection
+
+This combines the first three paths similar to the fourth and fifths. If you
+doubt what you get you can always \type {show} the path and look for \type
+{{begin}} and \type {{end}} indicators.
+
+\startbuffer
+\startMPcode
+    path p ;
+    p := lua.mp.getshapepath(1) scaled 1cm &&
+         lua.mp.getshapepath(2) scaled 1cm &&
+         lua.mp.getshapepath(3) scaled 1cm ;
+    draw p withpen pencircle scaled 1pt withcolor 0.7 ;
+  % show(p);
+\stopMPcode
+\stopbuffer
+
+\typebuffer[option=TEX]
+
+We draw the result and see that they are decoupled indeed thanks to some \type
+{&&} magic:
+
+\startlinecorrection \getbuffer \stoplinecorrection
+
+\stopsection
+
+\stopchapter
+
+\stopcomponent
+
+% \startluacode
+%     local a1 = {   0,   0 }
+%     local a2 = { 100,   0 }
+%     local a3 = { 100, 100 }
+%     local a4 = {   0, 100 }
+%     local b1 = {  25,  25 }
+%     local b2 = {  50,  25 }
+%     local b3 = {  50,  50 }
+%     local b4 = {  25,  50 }
+%
+%     function MP.one()
+%         mp.inject.path {
+%             a1, a2, a3, a4,
+%         }
+%     end
+%     function MP.two()
+%         mp.inject.path {
+%             a1, a2, a3, a4,
+%             cycle  = true,
+%         }
+%     end
+%     function MP.three()
+%         mp.inject.path {
+%             a1, a2, a3, a4,
+%             curled = true
+%         }
+%     end
+%     function MP.four()
+%         mp.inject.path {
+%             a1, a2, a3, a4, a1,
+%             cycle  = true,
+%             curled = true
+%         }
+%     end
+%     function MP.five()
+%         mp.inject.path {
+%             {
+%                 path = { a1, a2, a3, a4 },
+%             },
+%             {
+%                 path = { b1, b2, b3, b4 },
+%             }
+%         }
+%     end
+%     function MP.six()
+%         mp.inject.path {
+%             {
+%                 path   = { a1, a2, a3, a4 },
+%                 append = true,
+%             },
+%             {
+%                 path   = { b1, b2, b3, b4 },
+%                 append = true,
+%             }
+%         }
+%     end
+% \stopluacode
+%
+% \startMPpage[offset=1TS]
+%     draw lua.MP.one  () ysized 4cm xshifted  0cm ;
+%     draw lua.MP.two  () ysized 4cm xshifted  5cm ;
+%     draw lua.MP.three() ysized 4cm xshifted 10cm ;
+%     draw lua.MP.four () ysized 4cm xshifted 15cm ;
+%     draw lua.MP.five () ysized 4cm xshifted 20cm ;
+%     draw lua.MP.six  () ysized 4cm xshifted 25cm ;
+% \stopMPpage

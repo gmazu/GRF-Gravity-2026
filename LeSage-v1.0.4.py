@@ -14,7 +14,7 @@ with open(lesage_path, 'r') as f:
     LESAGE = yaml.safe_load(f)
 
 
-class LeSageCalentamiento(Scene):
+class LeSageComparacion(Scene):
     """
     LeSage v1.0.4 - Calentamiento progresivo con contador
 
@@ -215,11 +215,12 @@ class LeSageCalentamiento(Scene):
                 # Mover
                 p.shift(p.dir * p.vel * dt)
 
-                # Verificar si llegó al planeta
+                # Verificar si llegó al planeta - sin pausa, desaparece AL TOCAR
                 pos = p.get_center()
                 dist = np.sqrt((pos[0] - centro_x)**2 + (pos[1] - centro_y)**2)
 
-                if dist < radio_planeta + 0.1:
+                # Desaparece justo en la superficie (sin buffer)
+                if dist < radio_planeta:
                     particulas_a_remover.append(p)
 
             # Remover partículas absorbidas

@@ -1,0 +1,586 @@
+% language=us runpath=texruns:manuals/luametatex
+
+\environment luametatex-style
+
+\startdocument[title=\LUA]
+
+\startsubject[title=Contents]
+    \setups[sectioncontents]
+\stopsubject
+
+\startsection[title={Introduction}]
+
+In this chapter aspects of the \LUA\ interfaces will be discusses. The \type
+{lua} module described here is rather low level and probably not of much interest
+to the average user as its functions are meant to be used in higher level
+interfaces.
+
+\stopsection
+
+\startsection[title={Initialization}]
+
+\startsubsection[title={A bare bone engine}]
+
+When the \LUAMETATEX\ program launches it will not do much useful. You can
+compare it to computer hardware without (high level) operating system with a
+\TEX\ kernel being the bios. It can interpret \TEX\ code but for typesetting you
+need a reasonable setup. You also need to load fonts, and for output you need a
+backend, and both can be implemented in \LUA. If you don't like that and want to
+get up and running immediately, you will be more happy with \LUATEX, \PDFTEX\ or
+\XETEX, combined with your favorite macro package.
+
+If you just want to play around you can install the \CONTEXT\ distribution which
+(including manuals and some fonts) is tiny compared to a full \TEXLIVE\
+installation and can be run alongside it without problems. If there are issues
+you can go to the usual \CONTEXT\ support platforms and seek help where you can
+find the people who made \LUATEX\ and \LUAMETATEX.
+
+If you use the engine as \TEX\ interpreter you need to set up a few characters.
+Of course one can wonder why this is the case, but let's consider this to be
+educational of nature as it right from the start forces one to wonder what
+category codes are.
+
+\starttyping
+\catcode`\{=1 \catcode`\}=2 \catcode`\#=6
+\stoptyping
+
+After that you can start defining macros. Contrary to \LUATEX\ the \LUAMETATEX\
+engine initializes all the primitives but it will quit when the minimal set of
+callback is not initialized, like a logger. The lack of font loader and backend
+makes that it is not usable for loading an arbitrary macro package that doesn't
+set up these components. There is simply no argument for starting in in original
+\TEX\ mode without \ETEX\ extensions and such.
+
+\stopsubsection
+
+\startsubsection[title={\LUAMETATEX\ as a \LUA\ interpreter}]
+
+Although \LUAMETATEX\ is primarily meant as a \TEX\ engine, it can also serve as
+a stand alone \LUA\ interpreter and there are two ways to make \LUAMETATEX\
+behave like one. The first method uses the command line option \type {--luaonly}
+followed by a filename. The second is more automatic: if the only non|-|option
+argument (file) on the command line has the extension \type {lmt} or \type {lua}.
+The \type {luc} extension has been dropped because bytecode compiled files are
+not portable and one can always load them indirectly. The \type {lmt} suffix is
+more \CONTEXT\ specific and makes it possible to have files for \LUATEX\ and
+\LUAMETATEX\ alongside.
+
+In interpreter mode, the program will set \LUA's \type {arg[0]} to the found
+script name, pushing preceding options in negative values and the rest of the
+command line in the positive values, just like the \LUA\ interpreter does. The
+program will exit immediately after executing the specified \LUA\ script and is
+thereby effectively just a somewhat bulky stand alone \LUA\ interpreter with a
+bunch of extra preloaded libraries. But we still wanted and managed to keep the
+binary small, somewhere around 3MB, which is okay for a script engine.
+
+When no argument is given, \LUAMETATEX\ will look for a \LUA\ file with the same
+name as the binary and run that one when present. This makes it possible to use
+the engine as a stub. For instance, in \CONTEXT\ a symlink from \type {mtxrun} to
+type {luametatex} will run the \type {mtxrun.lmt} or \type {mtxrun.lua} script
+when present in the same path as the binary itself. As mentioned before first
+checking for (\CONTEXT) \type {lmt} files permits different files for different
+engines in the same path.
+
+\stopsubsection
+
+\startsubsection[title={Other commandline processing}]
+
+When the \LUAMETATEX\ executable starts, it looks for the \type {--lua} command
+line option. If there is no such option, the command line is interpreted in a
+similar fashion as the other \TEX\ engines. All options are accepted but only
+some are understood by \LUAMETATEX\ itself:
+
+\starttabulate[|l|p|]
+\FL
+\BC commandline argument    \BC explanation \NC \NR
+\TL
+\NC \type{--credits}        \NC display credits and exit \NC \NR
+\NC \type{--fmt=FORMAT}     \NC load the format file \type {FORMAT} \NC\NR
+\NC \type{--help}           \NC display help and exit \NC\NR
+\NC \type{--ini}            \NC be \type {iniluatex}, for dumping formats \NC\NR
+\NC \type{--jobname=STRING} \NC set the job name to \type {STRING} \NC \NR
+\NC \type{--lua=FILE}       \NC load and execute a \LUA\ initialization script \NC\NR
+\NC \type{--version}        \NC display version and exit \NC \NR
+\NC \type{--permitloadlib}  \NC permits loading of external libraries \NC \NR
+\LL
+\stoptabulate
+
+There are less options than with \LUATEX, because one has to deal with them in
+\LUA\ anyway. So for instance there are no options to enter a safer mode or
+control executing programs because this can easily be achieved with a startup
+\LUA\ script, which can interpret whatever options got passed.
+
+Next the initialization script is loaded and executed. From within the script,
+the entire command line is available in the \LUA\ table \type {arg}, beginning
+with \type {arg[0]}, containing the name of the executable. As consequence
+warnings about unrecognized options are suppressed. Command line processing
+happens very early on. So early, in fact, that none of \TEX's initializations
+have taken place yet. The \LUA\ libraries that don't deal with \TEX\ are
+initialized rather soon so you have these available.
+
+\LUAMETATEX\ allows some of the command line options to be overridden by reading
+values from the \type {texconfig} table at the end of script execution (see the
+description of the \type {texconfig} table later on in this document for more
+details on which ones exactly). The value to use for \type {\jobname} is decided
+as follows:
+
+\startitemize
+\startitem
+    If \type {--jobname} is given on the command line, its argument will be the
+    value for \type {\jobname}, without any changes. The argument will not be
+    used for actual input so it need not exist. The \type {--jobname} switch only
+    controls the \type {\jobname} setting.
+\stopitem
+\startitem
+    Otherwise, \type {\jobname} will be the name of the first file that is read
+    from the file system, with any path components and the last extension (the
+    part following the last \type {.}) stripped off.
+\stopitem
+\startitem
+    There is an exception to the previous point: if the command line goes into
+    interactive mode (by starting with a command) and there are no files input
+    via \type {\everyjob} either, then the \type {\jobname} is set to \type
+    {texput} as a last resort.
+\stopitem
+\stopitemize
+
+So let's summarize this. The handling of what is called job name is a bit complex.
+There can be explicit names set on the command line but when not set they can be
+taken from the \type {texconfig} table.
+
+\starttabulate[|l|T|T|T|]
+\NC startup filename \NC --lua     \NC a \LUA\ file  \NC                      \NC \NR
+\NC startup jobname  \NC --jobname \NC a \TEX\ tex   \NC texconfig.jobname    \NC \NR
+\NC startup dumpname \NC --fmt     \NC a format file \NC texconfig.formatname \NC \NR
+\stoptabulate
+
+These names are initialized according to \type {--luaonly} or the first filename
+seen in the list of options. Special treatment of \type {&} and \type {*} as well
+as interactive startup is gone but we still enter \TEX\ via an forced \type {\input}
+into the input buffer. \footnote {This might change at some point into an explicit
+loading triggered via \LUA.}
+
+When we are in \TEX\ mode at some point the engine needs a filename, for instance
+for opening a log file. At that moment the set jobname becomes the internal one
+and when it has not been set which internalized to jobname but when not set
+becomes \type {texput}. When you see a \type {texput.log} file someplace on your
+system it normally indicates a bad run.
+
+% fileio_state     .jobname         : a tex string (set when a (log) file is opened)
+% engine_state     .startup_jobname : handles by option parser
+% environment_state.input_name      : temporary interceptor
+
+The command line option \type{--permitloadlib} has to be given when you load
+external libraries via \LUA. Although you could manage this via \LUA\ itself in a
+startup script, the reason for having this as option is the wish for security (at
+some point that became a demand for \LUATEX), so this might give an extra feeling
+of protection.
+
+\stopsubsection
+
+\stopsection
+
+\startsection[title={\LUA\ behaviour}]
+
+\startsubsection[title={The \LUA\ version}]
+
+We currently use \LUA\ version \luaversion\ and will follow developments of the
+language but normally with some delay. Therefore the user needs to keep an eye on
+(subtle) differences in successive versions of the language. Here are a few
+examples.
+
+\LUA s \type {tostring} function (and \type {string.format}) may return values in
+scientific notation, thereby confusing the \TEX\ end of things when it is used as
+the right|-|hand side of an assignment to a \type {\dimen} or \type {\count}. The
+output of these serializers also depend on the \LUA\ version, so in \LUA\ 5.3 you
+can get different output than from 5.2. It is best not to depend the automatic
+cast from string to number and vise versa as this can change in future versions.
+
+When \LUA\ introduced bitwise operators, instead of providing functions in the
+\type {bit32} library, we wanted to use these. The solution in \CONTEXT\ was to
+implement a macro subsystem (kind of like what \CCODE\ does) and replace the
+function calls by native bitwise operations. However, because \LUAJITTEX\ didn't
+evolve we dropped that and when we split the code base between \MKIV\ and \MKXL\
+we went native bitwise. The \type {bit32} library is still there but implemented
+in \LUA\ instead.
+
+\stopsubsection
+
+\startsubsection[title={Locales}]
+
+In stock \LUA, many things depend on the current locale. In \LUAMETATEX, we can't
+do that, because it makes documents non|-|portable. While \LUAMETATEX\ is running
+if forces the following locale settings:
+
+\starttyping
+LC_CTYPE=C
+LC_COLLATE=C
+LC_NUMERIC=C
+\stoptyping
+
+There is no way to change that as it would interfere badly with the often
+language specific conversions needed at the \TEX\ end.
+
+\stopsubsection
+
+\stopsection
+
+\startsection[title={\LUA\ modules}]
+
+Of course the regular \LUA\ modules are present. In addition we provide the \type
+{lpeg} library by Roberto Ierusalimschy, This library is not \UNICODE|-|aware,
+but interprets strings on a byte|-|per|-|byte basis. This mainly means that \type
+{lpeg.S} cannot be used with \UTF8 characters that need more than one byte, and
+thus \type {lpeg.S} will look for one of those two bytes when matching, not the
+combination of the two. The same is true for \type {lpeg.R}, although the latter
+will display an error message if used with multi-byte characters. Therefore \type
+{lpeg.R('aä')} results in the message \type {bad argument #1 to 'R' (range must
+have two characters)}, since to \type {lpeg}, \type {ä} is two 'characters'
+(bytes), so \type {aä} totals three. In practice this is no real issue and with
+some care you can deal with \UNICODE\ just fine.
+
+There are some more libraries present. For instance we embed \type {luasocket}
+but contrary to \LUATEX\ don't embed the related \LUA\ code but some patched and
+extended variant. The \type {luafilesystem} module has been replaced by a more
+efficient one that also deals with the \MSWINDOWS\ file and environment
+properties better (\UNICODE\ support in \MSWINDOWS\ dates from before \UTF8
+became dominant so we need to deal with wide \UNICODE16). We don't have a
+\UNICODE\ library because we always did conversions in \LUA, but there are some
+helpers in the \type {string} library, which makes sense because \LUA\ itself is
+now also becoming \UNICODE\ aware.
+
+There are more extensive math libraries and there are libraries that deal with
+encryption and compression. There are also some optional libraries that we do
+interface but that are loaded on demand. The interfaces are as minimal as can be
+because we so much in \LUA, which also means that one can tune behavior to usage
+better.
+
+\stopsection
+
+\startsection[title={Files}]
+
+\startsubsection[title={File syntax}]
+
+\LUAMETATEX\ will accept a braced argument as a file name:
+
+\starttyping
+\input {plain}
+\openin 0 {plain}
+\stoptyping
+
+This allows for embedded spaces, without the need for double quotes. Macro
+expansion takes place inside the argument. Keep in mind that as side effect of
+delegating \IO\ to \LUA\ the \tex {openin} primitive is not provided by the
+engine and has to be implemented by the macro package. This also means that the
+limit on the number of open files is not enforced by the engine.
+
+\stopsubsection
+
+\startsubsection[title={Writing to file}]
+
+Writing to a file in \TEX\ has two forms: delayed and immediate. Delayed writing
+means that the to be written text is anchored in the node list and flushed by the
+backend. As all \IO\ is delegated to \LUA, this also means that it has to deal
+with distinction. In \LUATEX\ the number of open files was already bumped to 127,
+but in \LUAMETATEX\ it depends on the macro package. The special meaning of
+channel 18 was already dropped in \LUATEX\ because we have \type {os.execute}.
+
+\stopsubsection
+
+\stopsection
+
+\startsection[title={Testing}]
+
+For development reasons you can influence the used startup date and time. By
+setting the \type {start_time} variable in the \type {texconfig} table; as with
+other variables we use the internal name there. When Universal Time is needed,
+set the entry \type {use_utc_time} in the \type {texconfig} table.
+
+In \CONTEXT\ we provide the command line argument \type {--nodates} that does
+a bit more than disabling dates; it avoids time dependent information in the
+output file for instance.
+
+\stopsection
+
+\startsection[title={Helpers}]
+
+\startsubsection[title=Basics]
+
+The \type {lua} library is relatively small and only provides a few functions.
+There are many more helpers but these are organized in specific modules for file
+i/o, handling strings, and manipulating table.
+
+The \LUA\ interpreter is stack bases and when you put a lot of values on the stack
+it can overflow. However, if that is the case you're probably doing something wrong.
+The next function returns the current top and is mainly there for development reasons.
+
+\starttyping[option=LUA]
+function lua.getstacktop ( )
+    return <t:integer>
+end
+\stoptyping
+
+The next example:
+
+\startbuffer
+\startluacode
+context(lua.getstacktop())
+context(lua.getstacktop(1,2,3))
+context(lua.getstacktop(1,2,3,4,5,6))
+\stopluacode
+\stopbuffer
+
+\typebuffer
+
+typesets: \inlinebuffer, so we're fine.
+
+\startbuffer
+\startluacode
+context(lua.getstacktop(unpack(token.getprimitives())))
+\stopluacode
+\stopbuffer
+
+\typebuffer
+
+But even this one os okay: \inlinebuffer, because some thousand plus entries is not
+bothering the engine. Of course it makes little sense because now one has to loop
+over the arguments.
+
+% \starttyping[option=LUA]
+% function lua.getdebuginfo ( )
+%     -- return todo
+% end
+% \stoptyping
+
+The engines exit code can be set with:
+
+\starttyping[option=LUA]
+function lua.setexitcode ( <t:integer> )
+    -- no return values
+end
+\stoptyping
+
+and queried with:
+
+\starttyping[option=LUA]
+function lua.getexitcode ( )
+    return <t:integer>
+end
+\stoptyping
+
+The name of the startup file, in our case \quote {\tttf \cldcontext
+{file.basename (lua.getstartupfile ())}} with the path part stripped, can be
+fetched with:
+
+\starttyping[option=LUA]
+function lua.getstartupfile ( )
+    return <t:string>
+end
+\stoptyping
+
+The current \LUA\ version, as reported by the next helper, is \cldcontext {lua.getversion ()}.
+
+\starttyping[option=LUA]
+function lua.getversion ( )
+    -- return todo
+end
+\stoptyping
+
+We provide high resolution timers so that we can more reliable do performance
+tests when needed and for that we have time related helpers. The \type
+{getruntime} function returns the time passed since startup. The \type
+{getcurrenttime} does what its name says. Just play with them to see how it pays
+off. The \type {getpreciseticks} returns a number that can be used later, after a
+similar call, to get a difference. The \type {getpreciseseconds} function gets
+such a tick (delta) as argument and returns the number of seconds. Ticks can
+differ per operating system, but one always creates a reference first and then
+use deltas to this reference.
+
+\stopsubsection
+
+\startsubsection[title=Timers]
+
+\starttyping[option=LUA]
+function lua.getruntime ( )
+    return <t:number> -- actually an integer
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function lua.getcurrenttime ( )
+    return <t:number> -- actually an integer
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function lua.getpreciseticks ( )
+    return <t:number> -- actually an integer
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function lua.getpreciseseconds ( <t:number> ticks )
+    return <t:number>
+end
+\stoptyping
+
+There is a little bit of duplication in the timers; here is what they report at
+this stage of the current run:
+
+\starttabulate[|lT|lT|l|]
+    \FL
+    \BC library \NC function              \BC result                               \NC \NR
+    \TL
+    \NC lua     \NC getruntime        \NC \cldcontext{lua.getruntime()}        \NC \NR
+    \NC         \NC getcurrenttime    \NC \cldcontext{lua.getcurrenttime()}    \NC \NR % 11644473600.0
+    \NC         \NC getpreciseticks   \NC \cldcontext{lua.getpreciseticks()}   \NC \NR
+    \NC         \NC getpreciseseconds \NC \cldcontext{lua.getpreciseseconds(lua.getpreciseticks())} \NC \NR
+    \ML
+    \NC os      \NC clock             \NC \cldcontext{os.clock()}              \NC \NR
+    \NC         \NC time              \NC \cldcontext{os.time()}               \NC \NR
+    \NC         \NC gettimeofday      \NC \cldcontext{os.gettimeofday()}       \NC \NR
+    \LL
+\stoptabulate
+
+\stopsubsection
+
+\startsubsection[title=Bytecode registers]
+
+\LUA\ registers can be used to store \LUA\ code chunks. The accepted values for
+assignments are functions and \type {nil}. Likewise, the retrieved value is
+either a function or \type {nil}.
+
+\starttyping[option=LUA]
+function lua.setbytecode (
+    <t:integer>  register,
+    <t:function> loader,
+    <t:boolean>  strip
+)
+    -- no return values
+end
+\stoptyping
+
+An example of a valid call is \type {lua.setbytecode(5,loadfile("foo.lua"))}. The complement
+of this helper is:
+
+\starttyping[option=LUA]
+function lua.getbytecode ( <t:integer> register )
+    retrurn <t:bytecode>
+end
+\stoptyping
+
+The codes are stored in the virtual table \type {lua.bytecode}. The contents of
+this array is stored inside the format file as actual \LUA\ bytecode, so it can
+also be used to preload \LUA\ code. The function must not contain any upvalues.
+The associated function calls are:
+
+\starttyping[option=LUA]
+function lua.callbytecode ( <t:integer> register )
+    -- <t:boolean> -- success
+end
+\stoptyping
+
+Note that the path of the file is stored in the \LUA\ bytecode to be used in
+stack backtraces and therefore dumped into the format file if the above code is
+used in \INITEX. If it contains private information, i.e. the user name, this
+information is then contained in the format file as well. This should be kept in
+mind when preloading files into a bytecode register in \INITEX.
+
+\stopsubsection
+
+\startsubsection[title=Tables]
+
+You can preallocate tables with these two helpers. The first one preallocates the
+given amount of hash entries and index entries. The \type {newindex} function
+create an indexed table with default values:
+
+\starttyping[option=LUA]
+function lua.newtable ( <t:integer> hashsize, <t:integer> indexsize )
+    return <t:table>
+end
+
+function lua.newindex ( <t:integer> size, <t:whatever> default )
+    return <t:table>
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title=Nibbles]
+
+Nibbles are half bytes so they run from \type {0x0} upto \type {0xF}. When we
+needed this for math state fields, the helpers made it here.
+
+\starttyping[option=LUA]
+function lua.setnibble ( <t:integer> original, <t:integer> position, <t:integer> value )
+    return <t:integer>
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function lua.getnibble ( <t:integer> original, <t:integer> position )
+    return <t:integer>
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function lua.addnibble ( <t:integer> original, <t:integer> position, <t:integer> value )
+    return <t:integer>
+end
+\stoptyping
+
+\starttyping[option=LUA]
+function lua.subnibble ( <t:integer> original, <t:integer> position, <t:integer> value )
+    return <t:integer>
+end
+\stoptyping
+
+Here a a few examples (positions go from right to left and start at one):
+
+\protected\def\Test#1#2{\NC #2 \NC \cldcontext{"0x\letterpercent#1X",#2} \NC \NR}
+
+\starttabulate[|lT|r|]
+\Test{04}{lua.setnibble(0x0000,2,0x1)}
+\Test{04}{lua.setnibble(0x0000,4,0x7)}
+\Test{01}{lua.getnibble(0x1234,2)}
+\Test{01}{lua.getnibble(0x1234,4)}
+\Test{04}{lua.addnibble(0x0000,2)}
+\Test{04}{lua.addnibble(0x0030,2)}
+\Test{04}{lua.subnibble(0x00F0,2)}
+\Test{04}{lua.subnibble(0x0080,2)}
+\stoptabulate
+
+\stopsubsection
+
+\startsubsection[title=Functions]
+
+The functions table stores functions by index. The index can be used with the
+primitives that call functions by index. In order to prevent interferences a
+macro package should provide some interface to the function call mechanisms, just
+like it does with registers.
+
+\starttyping[option=LUA]
+function lua.getfunctionstable ( )
+    return <t:table>
+end
+\stoptyping
+
+\stopsubsection
+
+\startsubsection[title=Tracing]
+
+The engine also includes the serializer from the \type {luac} program, just
+because it can be interesting to see what \LUA\ does with your code.
+
+\starttyping[option=LUA]
+function luac.print ( <t:string> bytecode, <t:boolean> detailed )
+    -- nothing to return
+end
+\stoptyping
+
+\stopsubsection
+
+\stopsection
+
+\stopdocument
+

@@ -1,0 +1,10 @@
+return {
+ ["enginebanner"]="This is LuaMetaTeX, Version 2.11.08",
+ ["formatbanner"]="2026.01.07 10:59",
+ ["formatid"]=726,
+ ["functionality"]=20260106,
+ ["luaformat"]=4,
+ ["luaversion"]=0x1.6p+2,
+ ["sourcefile"]="context.mkxl",
+ ["sourcehash"]="506d432ab01d1feabf579b55cc89bf6f",
+}

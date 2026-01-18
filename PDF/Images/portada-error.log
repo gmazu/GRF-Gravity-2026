@@ -1,0 +1,8 @@
+return {
+ ["filename"]="/eVΛ/eCEL/ThöEv-RgB/GRF2026/PDF/Images/portada.tex",
+ ["lastcontext"]="\n\\dotripleempty #1->\\t_syst_aux {#1}\n                       \\let \\m_syst_action_yes \\syst_helpers_triple_empty_one_yes \\let \\m_syst_action_nop \\syst_helpers_triple_empty_one_nop \\let \\if_next_blank_space_token \\iffalse \\futurelet \\nexttoken \\syst_helpers_inspect_next_optional_character \n\\currentlayer ->\\externalfigure \n                     [paper-texture.png\n\\layerparameter #1->\\csname \\ifcsname \\??layer \\currentlayer \n                                                :#1\\endcsname \\??layer \\currentlayer :#1\\else \\expandafter \\dolayerparentparameter \\csname \\??layer \\currentlayer :\\s!parent \\endcsname {#1}\\fi \\endcsname \n\\pack_layers_set [#1][#2][#3]->\\bgroup \\checkpositionoverlays \\edef \\currentlayer {#1}\\edef \\p_pack_layers_state {\\layerparameter \\c!state \n                                                                                                                             }\\ifx \\p_pack_layers_state \\v!stop \\dowithnextboxcs \\egroup \\hbox \\else \\ifthirdargument \\pack_layers_set_indeed [#1][#2][...\n<to be read again> \n {\n\\98>paperbg ->\\setlayer [\\externalfigure [paper-texture.png]{\n                                                    \\executedefinedoverlay {paperbg}{width=\\paperwidth ,height=\\paperheight }}\n...\nl.28 \n    ",
+ ["lastluaerror"]="?",
+ ["lasttexerror"]="! Use of \\grph_include_figure doesn't match its definition",
+ ["linenumber"]=28,
+ ["offset"]=10,
+}

@@ -1,0 +1,59 @@
+\setuppapersize[letter]
+\setuplayout
+  [topspace=18mm,
+   backspace=20mm,
+   width=middle,
+   height=middle,
+   header=0mm,
+   footer=0mm]
+
+% Background texture (cleaned, no text).
+\defineoverlay[paperbg][\externalfigure[paper-texture.png][width=\paperwidth,height=\paperheight]]
+\setupbackgrounds[page][background=paperbg]
+
+\setupbodyfont[modern,11pt]
+\setupalign[middle]
+\setupinterlinespace[line=13pt]
+
+\definecolor[TitleColor][h=3b2f25]
+\definecolor[RuleColor][h=6c5a4f]
+
+\def\TitleRule{%
+  \blank[small]
+  {\color[RuleColor]{\hrule height .6pt}}
+  \blank[small]}
+
+\starttext
+\startstandardmakeup
+
+{\switchtobodyfont[20pt]\bf\color[TitleColor]{DEVOLVIENDO LA MANZANA}}
+\blank[small]
+{\switchtobodyfont[14pt]\sc\color[TitleColor]{DE NEWTON A LE SAGE}}
+
+\TitleRule
+
+{\it
+  "En toda materia: los primeros sistemas son demasiado limitados,
+  demasiado estrechos, demasiado tímidos. Y parece que la verdad
+  misma no sea el precio sino de cierta audacia de razón."
+}
+\blank[small]
+{\sc -- FONTENELLE, dans l'éloge de CASSINI}
+
+\TitleRule
+
+{\sc Par eVΛ \,|\, GrössIA \,|\, Bruno \,|\, Mazu}
+\blank[medium]
+
+% Replace emblem.png with your circular seal or illustration.
+\externalfigure[emblem.png][width=0.28\textwidth]
+
+\blank[medium]
+Essay written for the Gravity Research Foundation\par
+2026 Awards for Essays on Gravitation
+
+\blank[medium]
+{\sc MDCCXXVI}
+
+\stopstandardmakeup
+\stoptext

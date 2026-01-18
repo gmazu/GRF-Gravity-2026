@@ -1,0 +1,56 @@
+# Configuracion eCEL Field - GravityeCEL v2.1.0
+# Modifica estos valores sin tocar el codigo
+
+# Densidad eCEL universo (valores reales 2026)
+universo:
+  densidad_vacio: 0              # Referencia normalizada
+  densidad_solar: 4.24e39        # particulas/m³ (superficie Sol)
+  densidad_horizonte: 0          # Agujero negro (desplazamiento total)
+  total_ecel_universo: 2e79      # Particulas totales en universo observable
+
+# Masa actual en escena
+masa_actual:
+  nombre: "Tierra"
+  radio_visual: 0.8              # Radio en pantalla (unidades Manim)
+  densidad: 35.5                  # g/cm³ - controla cuanto eCEL se desplaza
+  color: "#3498db"               # Azul tierra
+
+# Tabla de desplazamiento segun densidad (valores reales)
+# densidad (g/cm³) -> % desplazamiento
+tabla_desplazamiento:
+  agua: 1.0           # 10% desplazamiento
+  tierra: 5.5         # 50% desplazamiento
+  plomo: 11.3         # 70% desplazamiento
+  oro: 19.3           # 85% desplazamiento
+  enana_blanca: 1e6   # 99% desplazamiento
+  estrella_neutrones: 1e17  # 100% desplazamiento
+  agujero_negro: 100  # 100% (limite, ρ_eCEL = 0)
+
+# Factor de desplazamiento
+desplazamiento:
+  densidad_maxima: 100           # Referencia agujero negro (normalizada para visualizacion)
+  gradiente_r2: true             # Aplicar decaimiento 1/r²
+  # Formula: ρ_eCEL(r) = ρ_superficie × (R/r)²
+
+# Visualizacion
+intensidad:
+  multiplicador: 1.2            # Factor de brillo
+  opacidad_minima: 0.35          # Opacidad fondo (oceano base)
+  opacidad_maxima: 1.0          # Opacidad maxima (acumulacion)
+  opacidad_acumulacion: 0.95     # Opacidad del eCEL que "brota"
+
+malla:
+  espaciado: 0.25                # 0.12 render final, 0.25 pruebas rapidas
+  radio_base: 0.025              # Radio base particulas
+  radio_minimo: 0.006            # Radio minimo
+  color_fondo: "#7986cb"         # Azul oscuro (oceano base)
+  color_acumulacion: "#42a5f5"   # Azul brillante (eCEL acumulado)
+
+# Animacion
+animacion:
+  duracion_intro: 2              # Segundos titulo
+  duracion_oceano: 2             # Segundos aparecer oceano
+  duracion_masa: 1.5             # Segundos aparecer masa
+  duracion_desplazamiento: 2.5   # Segundos efecto desplazamiento
+  duracion_final: 3              # Segundos escena final
+  fps: 30

@@ -1,0 +1,10 @@
+return {
+ ["enginebanner"]="This is LuaTeX, Version 1.24.0 (TeX Live 2026/dev)",
+ ["formatbanner"]="2026.01.07 10:59",
+ ["formatid"]=0,
+ ["functionality"]=7707,
+ ["luaformat"]=0,
+ ["luaversion"]=0x1.5333333333333p+2,
+ ["sourcefile"]="context.mkiv",
+ ["sourcehash"]="29461b0f95fb7d0b5b5af96ac1d62a0b",
+}

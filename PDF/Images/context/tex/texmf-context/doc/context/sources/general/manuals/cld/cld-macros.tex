@@ -1,0 +1,424 @@
+% language=us runpath=texruns:manuals/cld
+
+\startcomponent cld-macros
+
+\environment cld-environment
+
+\startchapter[title=Macros]
+
+\startsection[title={Introduction}]
+
+You can skip this chapter if you're not interested in defining macros or are
+quite content with defining them in \TEX. It's just an example of possible future
+interface definitions and it's not the fastest mechanism around.
+
+\stopsection
+
+\startsection[title={Parameters}]
+
+Right from the start \CONTEXT\ came with several user interfaces. As a
+consequence you need to take this into account when you write code that is
+supposed to work with interfaces other than the English one. The \TEX\ command:
+
+\starttyping
+\setupsomething[key=value]
+\stoptyping
+
+and the \LUA\ call:
+
+\starttyping
+context.setupsomething { key = value }
+\stoptyping
+
+are equivalent. However, all keys at the \TEX\ end eventually become English, but
+the values are unchanged. This means that when you code in \LUA\ you should use
+English keys and when dealing with assigned values later on, you need to
+translate them of compare with translations (which is easier). This is why in the
+\CONTEXT\ code you will see:
+
+\starttyping
+if somevalue == interfaces.variables.yes then
+  ...
+end
+\stoptyping
+
+instead of:
+
+\starttyping
+if somevalue == "yes" then
+  ...
+end
+\stoptyping
+
+\stopsection
+
+\startsection[title={User interfacing}]
+
+Unless this is somehow inhibited, users can write their own macros and this is
+done in the \TEX\ language. Passing data to macros is possible and looks like
+this:
+
+\starttyping
+\def\test#1#2{.. #1 .. #2 .. }      \test{a}{b}
+\def\test[#1]#2{.. #1 .. #2 .. }    \test[a]{b}
+\stoptyping
+
+Here \type {#1} and \type {#2} represent an argument and there can be at most 9
+of them. The \type{[]} are delimiters and you can delimit in many ways so the
+following is also right:
+
+\starttyping
+\def\test(#1><#2){.. #1 .. #2 .. }  \test(a><b)
+\stoptyping
+
+Macro packages might provide helper macros that for instance take care of
+optional arguments, so that we can use calls like:
+
+\starttyping
+\test[1,2,3][a=1,b=2,c=3]{whatever}
+\stoptyping
+
+and alike. If you are familiar with the \CONTEXT\ syntax you know that we use
+this syntax all over the place.
+
+If you want to write a macro that calls out to \LUA\ and handles things at that
+end, you might want to avoid defining the macro itself and this is possible.
+
+\startbuffer
+\startluacode
+function document.test(opt_1, opt_2, arg_1)
+    context.startnarrower()
+    context("options 1: %s",interfaces.tolist(opt_1))
+    context.par()
+    context("options 2: %s",interfaces.tolist(opt_2))
+    context.par()
+    context("argument 1: %s",arg_1)
+    context.stopnarrower()
+end
+
+interfaces.definecommand {
+    name = "test",
+    arguments = {
+        { "option", "list" },
+        { "option", "hash" },
+        { "content", "string" },
+    },
+    macro = document.test,
+}
+\stopluacode
+
+test: \test[1][a=3]{whatever}
+\stopbuffer
+
+An example of a definition and usage at the \LUA\ end is:
+
+\typebuffer
+
+The call gives:
+
+\startpacked
+\getbuffer
+\stoppacked
+
+\startbuffer
+\startluacode
+local function startmore(opt_1)
+    context.startnarrower()
+    context("start more, options: %s",interfaces.tolist(opt_1))
+    context.startnarrower()
+end
+
+local function stopmore()
+    context.stopnarrower()
+    context("stop more")
+    context.stopnarrower()
+end
+
+interfaces.definecommand ( "more", {
+    environment = true,
+    arguments = {
+        { "option", "list" },
+    },
+    starter = startmore,
+    stopper = stopmore,
+} )
+\stopluacode
+
+more: \startmore[1] one \startmore[2] two \stopmore one \stopmore
+\stopbuffer
+
+If you want to to define an environment (i.e.\ a \type {start}||\type {stop}
+pair, it looks as follows:
+
+\typebuffer
+
+This gives:
+
+\startpacked
+\getbuffer
+\stoppacked
+
+The arguments are know in both \type {startmore} and \type {stopmore} and nesting
+is handled automatically.
+
+\stopsection
+
+\startsection[title=Looking inside]
+
+If needed you can access the body of a macro. Take for instance:
+
+\startbuffer
+\def\TestA{A}
+\def\TestB{\def\TestC{c}}
+\def\TestC{C}
+\stopbuffer
+
+\typebuffer \getbuffer
+
+The following example demonstrates how we can look inside these macros. You need
+to be aware of the fact that the whole blob of \LUA\ codes is finished before we
+return to \TEX, so when we pipe the meaning of \type {TestB} back to \TEX\ it
+only gets expanded afterwards. We can use a function to get back to \LUA. It's
+only then that the meaning of \type {testC} is changed by the (piped) expansion
+of \type {TestB}.
+
+\startbuffer
+\startluacode
+context(tokens.getters.macro("TestA"))
+context(tokens.getters.macro("TestB"))
+context(tokens.getters.macro("TestC"))
+tokens.setters.macro("TestA","a")
+context(tokens.getters.macro("TestA"))
+context(function()
+    context(tokens.getters.macro("TestA"))
+    context(tokens.getters.macro("TestB"))
+    context(tokens.getters.macro("TestC"))
+end)
+\stopluacode
+\stopbuffer
+
+\typebuffer \getbuffer
+
+Here is another example:
+
+\startbuffer
+\startluacode
+if tokens.getters.macro("fontstyle") == "rm" then
+    context("serif")
+else
+    context("unknown")
+end
+\stopluacode
+\stopbuffer
+
+\typebuffer
+
+Of course this assumes that you have some knowledge of the \CONTEXT\ internals.
+
+\getbuffer
+
+\stopsection
+
+\startsection[title=Deep down]
+
+Some commands in the previous sections use a more fundamental interfacing
+feature: implementers. These are used a lot deep down in \CONTEXT\ and use high
+performance scanners to pick up data from the \TEX\ end. As with other
+definitions you have to be careful using them and choose names wisely; you never
+know when we add something that will clash with your command name and what we
+define in the core wins.
+
+\starttyping
+\startluacode
+interfaces.implement {
+    name      = "foo",
+    arguments = { "string", "integer" },
+    actions   = function(s,i)
+        -- something
+    end,
+}
+\stopluacode
+\stoptyping
+
+This defines a command \type {\clf_foo} so it is hidden from the user due to the use of an
+underscore. You can instead say:
+
+\starttyping
+\startluacode
+interfaces.implement {
+    name      = "foo",
+    public    = true,
+    arguments = { "string", "integer" },
+    actions   = function(s,i)
+        -- something
+    end,
+}
+\stopluacode
+\stoptyping
+
+If you want a protected macro you say:
+
+\starttyping
+\startluacode
+interfaces.implement {
+    name      = "foo",
+    public    = true,
+    protected = true,
+    arguments = { "string", "integer" },
+    actions   = function(s,i)
+        -- something
+    end,
+}
+\stopluacode
+\stoptyping
+
+Other prefix keys are \type {untraced} and \type {noaligned}. The prefix
+{permanent} is always used so that implementers are protected against overloading
+what than mechanism is active. A special directive is \type {usage}:
+
+\starttyping
+\startluacode
+interfaces.implement {
+    name      = "iffoo",
+    public    = true,
+    usage     = "condition",
+    arguments = { "string", "integer" },
+    actions   = function(s,i)
+        -- return something
+    end,
+}
+\stopluacode
+\stoptyping
+
+which gives you a native \type {\if}-test. A \type {value} usage is also special and you
+can for instance use it after \type {\the} in which case the (here) \type {what} signals
+that some value has to be returned. Otherwise you can for instance scan for a value.
+
+\starttyping
+\startluacode
+interfaces.implement {
+    name      = "foo",
+    public    = true,
+    usage     = "value",
+    actions   = function(what)
+        if what == "value" then
+            -- return something
+        else
+            -- something
+        end
+    end,
+}
+\stopluacode
+\stoptyping
+
+When returning a value you need to specify the type (a number), and a value.
+Valid types are:
+
+\startluacode
+local NC, NR = context.NC, context.NR
+context.startcolumns { n = 4 }
+context.starttabulate { "|Tr|T|" }
+for k, v in table.sortedhash(tokens.values) do
+    if tonumber(k) then
+        NC() context(k)
+        NC() context(v)
+        NC() NR()
+    end
+end
+context.stoptabulate()
+context.stopcolumns()
+\stopluacode
+
+When scanning for something you have a lot of choice, like
+
+\starttyping
+\startluacode
+local i = tokens.scanners.integer()
+\stopluacode
+\stoptyping
+
+Valid scanners are:
+
+\startalign[flushleft]
+\tttf \ctxlua {context("\letterpercent, t",table.sortedkeys(tokens.scanners))}
+\stopalign
+
+but normally users will stick to \type {string}, \typ {integer} and \typ
+{dimension} if they use this interface at all, so for now we will not go into
+details about the less obvious ones. Here it is enough to know that the implement
+feature is the one we use to extend the repertoire of low level, sometimes
+primitive-like commands.
+
+Keep in mind that when you see these mechanisms in the code base that they are
+\CONTEXT\ specific. Right from the start we had such interfaces and they are
+the reason why we always had a well integrated system. But they are not generic!
+
+Here are some examples of \type {usage}:
+
+\startbuffer
+\startluacode
+interfaces.implement {
+    name      = "IfFoo",
+    public    = true,
+    usage     = "condition",
+    arguments = { "integer", "integer" },
+    actions   = function(what)
+        return tokens.values.boolean, one == two
+    end,
+}
+\stopluacode
+\stopbuffer
+
+\typebuffer \getbuffer
+
+With:
+
+\startbuffer
+[\IfFoo {123 + 10} {789 / 3}  yes\else no\fi]
+[\IfFoo {123 + 10} {10 + 123} yes\else no\fi]
+\stopbuffer
+
+\typebuffer
+
+we get: \inlinebuffer. A value variant is:
+
+\startbuffer
+\startluacode
+local value = 123
+
+interfaces.implement {
+    name    = "MyFoo",
+    public  = true,
+    usage   = "value",
+    actions = function(what)
+        if what == "value" then
+            return tokens.values.integer, value
+        else
+            value = tokens.scanners.integer(true)
+        end
+    end,
+}
+\stopluacode
+\stopbuffer
+
+\typebuffer \getbuffer
+
+With:
+
+\startbuffer
+[\the\MyFoo]\MyFoo = 456
+[\the\MyFoo]\MyFoo = { 456 + 123 }%
+[\the\MyFoo]
+\stopbuffer
+
+\typebuffer
+
+we get: \inlinebuffer. The \type {true} in the scanner call makes that we can use a
+\type {=} in the assignment. When scanning for an integer or dimension you actually
+use the expression scanner.
+
+\stopsection
+
+\stopchapter
+
+\stopcomponent

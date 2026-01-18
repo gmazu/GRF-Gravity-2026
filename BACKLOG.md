@@ -32,6 +32,8 @@
   - v2.2.0 y v2.2.1 fallaron (el usuario se puso huevón)
 
 ### Media prioridad
+- [ ] **Curvatura de luz real (GR)** - Modelo físico: geodésicas o lente débil con deflexión ~ 4GM/(c² b) para densidad real
+- [ ] **Pintas en balas Le Sage** - Agregar textura/pintas para que las partículas se vean más realistas
 - [x] **Distribución homogénea eCEL** - RESUELTO v2.1.1: sin aleatorio, distancia mínima, sin espacios vacíos
 - [ ] **YAMLs preconfigurados** - Crear configs listos para usar:
   - `config_planeta.yaml` (Tierra, Marte, etc.)

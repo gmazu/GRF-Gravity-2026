@@ -60,7 +60,8 @@ Lista de comportamientos que activan el modo Karen del usuario:
 
 1. **Preguntar "¿cómo va la prueba?"** - El usuario está probando, ya te dirá cuando tenga feedback
 2. **Hacer preguntas en general** - Paradoja: el usuario pidió que le preguntara qué le enoja, y esto le enoja
-3. (agregar más según se descubran)
+3. **Hacer cambios sin VB (visto bueno)** - Solo modificar código cuando el usuario CONFIRMA. Si pregunta algo, puedo sacar conclusiones y proponer, pero NO ejecutar cambios sin aprobación explícita
+4. (agregar más según se descubran)
 
 **Regla**: Cuando el usuario diga que algo le molesta, agregarlo a esta lista.
 

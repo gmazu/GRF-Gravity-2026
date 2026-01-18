@@ -1,0 +1,1366 @@
+% language=us runpath=texruns:manuals/luametatex
+
+\environment luametatex-style
+
+\startdocument[title=Principles]
+
+\startsubject[title=Contents]
+    \setups[sectioncontents]
+\stopsubject
+
+\startsection[title=Introduction]
+
+This is a bit odd manual but needed anyway. In the process of adding features to
+\LUAMETATEX\ and adapting \CONTEXT\ accordingly some decisions were made. On the
+one hand generic flexibility is a criterion used when the extending engine, on
+the other hand practical usability in \CONTEXT\ is used to decide where to draw
+a line or make some choices. It makes no sense to complicate the already complex
+engine even more, or cripple \CONTEXT\ when cleaner (low level) solutions are
+possible.
+
+Here I will collect some of the considerations and mention the choices made.
+These are mostly mine but some result from discussions and experiments. This
+overview is not complete, new primitives are discussed elsewhere and the
+\CONTEXT\ low level manuals explain how to use these. Consider this to be a
+teaser.
+
+{\em This summary is work in progress.}
+
+\stopsection
+
+\startsection[title=Text fonts]
+
+Plenty has been written about fonts in \TEX, so here I will only mention a few
+aspects. Traditionally the \TEX\ engines works with copies of fonts at given
+sizes. For large fonts that is kind of inefficient. This is why in \LUAMETATEX\
+we can scale a font on|-|the|-|fly using \typ {\glyphscale}, \typ {\glyphxscale}
+and \typ {\glyphyscale}. This feature is also used to implement a more efficient
+(although not 100\percent\ metric compatible) compact font mode. It works okay in
+text as well as math although it comes at a price: many more calculations are
+needed at the engine end.
+
+One way to get an expanded, squeezed, emboldened or slanted font in \CONTEXT\ is
+to use the effects mechanism. It is quite flexible but again comes at a price
+because the backend has to do more work which is measurable, especially because
+effects can apply to the font or individual glyphs. However, the advantages
+out|-|weight the disadvantages. At the cost of yet a bit more performance a more
+native variant is also available using \typ {\glyphslant} and \typ
+{\glyphweight}.
+
+\definefontfeature[extendtest] [default][extend=1.25]
+\definefontfeature[squeezetest][default][squeeze=1.25]
+\definefontfeature[slanttest]  [default][slant=0.5]
+\definefontfeature[weighttesta][default][weight=0.2] % 0.4pt is bad for the g in lm
+\definefontfeature[weighttestb][default][effect={weight=0.2,auto=yes}]
+
+\starttexdefinition demo #1
+    \startcombination[nx=6,ny=1,distance=12.5mm]
+      {\scale[scale=8000]{\definedfont[Serif*default     @ 10bp]\ruledhbox{\color[maincolor]{#1}}}} {}
+      {\scale[scale=8000]{\definedfont[Serif*extendtest  @ 10bp]\ruledhbox{\color[maincolor]{#1}}}} {}
+      {\scale[scale=8000]{\definedfont[Serif*squeezetest @ 10bp]\ruledhbox{\color[maincolor]{#1}}}} {}
+      {\scale[scale=8000]{\definedfont[Serif*slanttest   @ 10bp]\ruledhbox{\color[maincolor]{#1}}}} {}
+      {\scale[scale=8000]{\definedfont[Serif*weighttesta @ 10bp]\ruledhbox{\color[maincolor]{#1}}}} {}
+      {\scale[scale=8000]{\definedfont[Serif*weighttestb @ 10bp]\ruledhbox{\color[maincolor]{#1}}}} {}
+    \stopcombination
+\stoptexdefinition
+
+\startlinecorrection \demo{a} \stoplinecorrection
+\startlinecorrection \demo{x} \stoplinecorrection
+\startlinecorrection \demo{p} \stoplinecorrection
+%startlinecorrection \demo{(} \stoplinecorrection
+\startlinecorrection \demo{g} \stoplinecorrection
+\startlinecorrection \demo{-} \stoplinecorrection
+
+Extending, as seen in the second renderings, scales the shapes horizontally,
+while squeezing, in the third renderings, does it in the vertical direction. In
+both cases the dimensions have to be adapted. This is not the case when we slant.
+The last two samples in a row have an increased weight, and these are the more
+tricky cases because here one can argue how to scale and reposition a shape. When
+a shape is above the baseline we increase the height, and when it goes below we
+increase the depth. The engine is capable to increase the width, height and depth
+and shift the shape a little. It only makes sense to adapt the height and depth
+when they are non|-|zero. It will never be perfect, but this feature is not
+perfect anyway.
+
+The way fonts are set up in a \TEX\ macro package often originates in the past,
+if only because it came with fonts. The Computer Modern fonts are among the few
+that have multiple design sizes. However, the collection is pretty much based on
+a ten point design. For math there are seven and five point variants for the
+script sizes, for footnotes an eight point makes sense and section heads can use
+the larger twelve point plus the few larger sizes. Setting up a twelve point
+body font environment, as we have in \CONTEXT, is quite doable with the fonts but
+for an eleven point body font more compromised have to be made.
+
+One can wonder why in \CONTEXT\ the ten point math setup of 10/7/5 became 12/9/7
+instead if 12/8.4/6 and the reason is just that when there were still bitmap
+fonts one didn't want too many (intermediate) sizes. Anyway, we're sort of stuck
+with this default setup now, but nothing prevents users to redefine a body font
+environment.
+
+Another speciality of \TEX\ (fonts) is that they have italic correction, something
+that lacks in \OPENTYPE\ fonts (apart from math btu there it serves a different
+purpose). We can however emulate it, and in \CONTEXT\ that is an option. Given that
+we have to make choices it is clear that the engine can only be supportive here,
+especially when we use the \typ {\glyphslant} method.
+
+A curious case is the following: in Computer Modern we find italic correction in
+the upright fonts, for instance between an \quote {f} and \quote {h}. Dealing with
+this automatically is impossible because italic correction is not to be applied
+between glyph runs of the same font.
+
+% quite some italics with not angle and uprights with angles
+% why not proper boundingbox (right side bearing) with (now also small) width
+% instead of unpredictable either or not urx
+
+By now it will be clear that when we talk fonts, from the perspective of \TEX\ we
+actually talk glyphs: the most prominent content item, although it is treated as
+an abstraction: a blob with dimensions and other properties. They are always
+wrapped in a box, often one that comes from the par builder where lines are
+packaged. They then travel around with the rest till the backend processes them
+and eventually discard the nodes that relate to them: glyph nodes.
+
+When a character is entered it ends up in a list. In a traditional approach it
+will be packaged (hboxed) or enter the par builder. Before that happens font
+processing takes place optionally preceded by hyphenation. In \LUAMETATEX\ before
+and after that callbacks can do all kind of things with the character (glyph)
+sequence. It is for that reason that in \CONTEXT\ we keep them as (either or not
+private) \UNICODE, but other macro packages might decide otherwise. The character
+value is in the end just a lookup key for the engine.
+
+A glyph node carries a lot of information and most relates not to processing a
+font but controlling other actions as well as possible tracing. Because setting
+and using is up to the macro package we keep the following simple. One can find
+examples in \CONTEXT\ and in the descriptions of nodes and \LUA\ helpers.
+
+A glyph carries the \nodefield {font} identifier and a \nodefield {character}
+code. The code is just the character from the input but any time a callback can
+change that. But in the end the backend has to know what it gets. Because the
+macro package implements the backend it has to be consistent but users don't need
+to know what actually happens, unless they plug in their own code. Of course the
+character code should relate to information passed to the engine, like
+dimensions. There is no standard so just assume that macro packages behave
+different. The font identifier combined with the character code that maps into
+the \type {characters} table passes to the engine provides the par builder and
+packager what it needs. There are no dimensions stored in the glyph nodes! But
+there are helpers that can provide the effective dimensions of a glyph at the
+\LUA\ end.
+
+A glyph node carries a \nodefield {state} and \nodefield {data}, both integers,
+that have no meaning in the engine. They are just efficient alternatives for
+attributes. In \CONTEXT\ they play a role in font rendering but again, there is
+no prescribed usage.
+
+The \nodefield {scale}, \nodefield {xscale} and \nodefield {yscale} fields in a
+glyph node reflect \type {\glyphscale}, \type {\glyphxscale}, \type
+{\glyphyscale} as set directly or via a \type {\fontspecdef}'d command. The
+\nodefield {weight} and \nodefield {slant} fields relate to \type {\glyphweight}
+and \type {\glyphslant}. These are used in for instance the by now default
+\CONTEXT\ compact font mode. So we can have the same font identifier with
+different scaling. Of course this comes at a price: instead of just picking up
+the width, height or depth from the font, the engine has to apply the scales to
+the natural dimensions. In practice this performance hit is compensated by
+savings elsewhere. But it does for instance means that in order to determine if
+two neighboring glyphs are from the same font in the traditional sense, scales as
+well as states and data fields have to be compared. Here is how that works in
+practice:
+
+\startbuffer
+{\glyphscale  1000 infor}{\glyphscale  1000 mation}
+{\glyphscale  1000 infor}{\glyphscale  1200 mation}
+{\glyphweight  100 infor}{\glyphweight  120 mation}
+\stopbuffer
+
+\typebuffer
+
+We choose a font that has kerns:
+
+\blank[2*big]
+\startlinecorrection
+\switchtobodyfont[pagella]\showfontkerns
+\scale[width=\textwidth]{\getbuffer}
+\stoplinecorrection
+\blank[2*big]
+
+When a text gets hyphenated, the process is controlled by all kind of settings,
+some of which relate to the language, so we have a \nodefield {language} field
+and for practical reasons also a \nodefield {script} field but the engine only
+uses the first one. The left and right hyphenation minima (\nodefield {lhmin} and
+\nodefield {rhmin}) are also stored in each glyph so one can control them
+locally, not that we've seen users doing that.
+
+We only mention the \nodefield {control} and \nodefield {option} fields because
+they reflect what actually is permitted in various stages. We also have a
+\nodefield {protection} state, that can be used to prevent duplicate processing.
+There are a few state variables that keep track of glyph originating in a pre,
+post or replacement discretionary component (\nodefield {discpart} and \nodefield
+{disccode}).
+
+The \nodefield {expansion} field stores the effective expansion factor as
+determined by the par builder. The backend has to follow up on this. When fonts
+features are applied kerning (or positioning in \OPENTYPE\ speak) can be be
+stored in the \nodefield {left}, \nodefield {right} and \nodefield {raise}
+fields. This saves injecting kern nodes. The user applied \type {\glyphxoffset}
+and \type {\glyphyoffset} also are reflected in fields: \nodefield {xoffset} and
+\nodefield {yoffset}.
+
+The final set of fields concern math, because after math has been processed
+glyphs is what we are left with. One can set a \nodefield {group}, \nodefield
+{index} and/or \nodefield {properties}. These can come in handy when interpreting
+the stream (think of exporting, verbose math or tagging). Usage is very macro
+package specific.
+
+The main message here is that in various stages of the rendering glyph fields are
+consulted, set, adapted. It definitely means that where in original \TEX\
+character nodes were one memory word, in \LUAMETATEX\ they are now 15 memory
+words. (At some point I might add some more details here.)
+
+Closely related to glyph nodes, definitely from the perspective of processing
+fonts, are discretionary nodes. When you manually enter them the three components
+are:
+
+\starttyping
+\discretionary {pre break} {post break} {replace}
+\stoptyping
+
+and when for instance an explicit hyphen \type {-} or a sequence of them that
+becomes a compound hyphen, is entered that also becomes such a triplet node. Of
+course the hyphenate machinery produces them in abundance.
+
+In \LUAMETATEX\ (as follow up on \LUATEX) we don't use the traditional \TEX\
+approach of only a pre and post component combined with jumping over the replace.
+We have explicit \nodefield {pre}, \nodefield {post} and \nodefield {replace}
+fields and these can have a list of glyphs (plus some more). A font processor has
+to look into these three streams and make decisions based on matches with
+preceding or following glyphs. Take it from us that this is a complex and not
+easy to follow process, especially not for complex fonts with contextual lookups.
+A word can have more than one discretionary.
+
+Most room in the 13 memory word node goes to housekeeping these three components
+and that has to be managed carefully so from the \LUA\ end control is restricted.
+In addition we have a \nodefield {penalty} and \nodefield {options} field. We
+also have a math specific \nodefield {class} field (so yes, math can have
+discretionaries) and a state field \nodefield {orphaned} that we use in the
+line-break routine. Overall it gives us a lot of control over the process of
+hyphenation and breaking content over lines.
+
+Eventually these discretionaries disappear from the node list. One can decide to
+keep them but it makes little sense. We loose information when the lines are
+constructed so keeping the inline only leaves us with an incomplete picture.
+Instead we store information with the glyphs in the mentioned \nodefield {disc*}
+fields so that we can to some extend reconstruct hyphenation points and provide
+visual feedback to the user on request; in the meantime \CONTEXT\ has a bit of a
+reputation for that kind of feedback. One lines are normalized, read: have a well
+defined final structure with respect to various space related properties, the
+fact that there are no longer discretionary nodes makes later processing of such
+lists a bit more efficient.
+
+\stopsection
+
+\startsection[title=Math fonts]
+
+Support for math in an \UNICODE\ aware engine is also driven by the repertoire of
+characters and their organization in \UNICODE, as well as by \OPENTYPE\ math as
+cooked up by \MICROSOFT\ with a bit of input from \TEX\ folk.
+
+The engine is agnostic when it comes to \UNICODE: there are no character codes
+interpreted in special ways. There are math alphabets but these are not special:
+in a traditional eight bit engine we have families to deal with them, in a
+\UNICODE\ aware engine there are several solutions. The most important character
+property that has some consequence is the math class but for dealing with that
+we're on our own anyway. Everything \UNICODE\ related is up to \CONTEXT\ to deal
+with, and it is the macro package that drives the engine, using the constructs
+that are available, like atoms with specific classes, fractions, accents,
+delimiters, fences, radicals, operators etc.
+
+When it comes to fonts it is more complex. The \OPENTYPE\ math standard is driven
+by the fact that \MSWORD\ provides a math editor and therefore needs a font. That
+font is Cambria and it is (at the time of writing this) the only font that comes
+from the origin. It has not been extended, nor fixed so basically what is in
+there kind of has become the standard. The other \OPENTYPE\ math fonts are a
+curious mix of old and new technology and again not much has happened there.
+
+Now, when it comes to choices here, a few can be made based on conclusions drawn
+during decades of dealing with these fonts and the assumed technology.
+
+\startitemize
+
+\startitem
+    There has be no real developments so we can just assume that what we got is
+    what we will have forever. Cambria is and remains the standard, quite some
+    fonts shipped with \TEX\ have issues that will stay, and new fonts,
+    especially when developed outside \TEX's scope likely also have issues,
+    because, after all, what is used for testing them?
+\stopitem
+
+\startitem
+    Only a few renders support the new technology. It is unlikely that \MSWORD\
+    will \ change and basically \XETEX\ and \LUATEX\ are also frozen. On the web
+    old school fonts are used, at least till 2023. Plenty of time went by since
+    the beginning of the century and nothing improved.
+\stopitem
+
+\startitem
+    The most important font properties that play a role are parameters, italic
+    correction, variants and extensibles, anchors for accents, stylistic
+    alternates, script alternates and staircase kerns. There are some rules of
+    how to apply italic correction, but many fonts make them unapplicable. The
+    same is true for anchors and kerns. There are only top kerns.
+\stopitem
+
+\startitem
+    Italic correction is a flawed concept and we decided to just ignore them:
+    when specified we add it to the width and discard them afterwards. The value
+    is translated into a bottom right corner kern. For large operators we
+    translate them to top and bottom accents.
+\stopitem
+
+\startitem
+    Top accents can be flawed so in many cases we can just ignore them. They
+    only make sense for italic shapes anyway.
+\stopitem
+
+\startitem
+    Staircase kerns are a nice idea but make no sense. First of all they concern
+    two characters, nucleus and script, but we can also have accents, fraction,
+    fenced stuff and other constructs in scripts so instead we prefer a system of
+    corner kerns. Also, we noticed that staircase kerns are often implemented
+    partially and even then not that well, probably because there was no way to
+    test them. Even worse is that when they are inconsistent formulas can look
+    rather inconsistent. So, we translate staircase kerns into corner kerns and
+    add and|/| overload them by corner kerns. These kerns can then be applied for
+    any reasonable combination.
+\stopitem
+
+\startitem
+    Extensible are mixed breed. Rules should be extensibles but aren't. Some snippets
+    have \UNICODE\ points so they can be used to construct missing glyphs but the
+    repertoire is inconsistent. Because we don't expect \UNICODE\ to adapt we
+    therefore provide alternative solutions.
+\stopitem
+
+\startitem
+    The repertoire of math parameters is on the one hand incomplete and on the
+    other hand less dependent on the font and more on intended usage. So, apart
+    from a few, we end up with adapting to our needs. It is part of the more granular
+    control that we wish.
+\stopitem
+
+\startitem
+    Gaps in alphabet vectors are a pain but the engine is agnostic of them. For some
+    reason the \TEX\ community let itself down on this so it has to cope at the macro
+    level. It is by now an old problem.
+\stopitem
+
+\stopitemize
+
+So, to summarize the font part, an alternative standard could discard the concept
+of italic correction and go for proper widths, a simplified corner kern model,
+provide top and bottom accents, prescribe a repertoire of extensibles and
+snippets and at least fill the gaps in alphabets instead of relying on shared
+glyphs. It won't happen any time soon, but still we do follow that approach and
+have the engine ready for it. Because we adapt the fonts runtime to this, we can
+eventually remove all the code related to italic correction and staircase kerns,
+simply because it is not used.
+
+\stopsection
+
+\startsection[title=Rules]
+
+The original \TEX\ engine actually has only two graphical elements: glyphs and
+rules. These have a width, height and depth and when decisions are made, for
+instance when deciding where to break a line, or when boxes are constructed these
+dimensions have to be known. Actually, \TEX\ doesn't really care what these
+elements are, it's the dimensions that matter most. Graphics for instance can be
+abstract objects, traditionally injected via so called specials wrapped into a
+box of given dimensions. The \PDFTEX\ and later engines added a native
+representation but basically it acted like a box (or rule if you like). It's the
+backend that turns glyphs, rules and these special boxes into something that one
+can see and print.
+
+Rules have the three dimensions we mentioned. There are horizontal and vertical rules,
+but only at the primitives level. Once you specified an \type {\hrule} or \type {\vrule}
+it became a generic rule with the main difference being the default dimensions. A rule
+initializes with so called running dimensions, think of signals that the final dimension
+comes from the encapsulating box.
+
+Here we have a vertical rule: {\darkblue \vrule width 3cm height 5mm depth 2mm}
+with width 3cm, height 5mm and depth 2mm. If we don't specify a width we get the
+default thickness of 0.4pt, as in {\darkblue \vrule height 5mm depth 2mm} and when we
+prefix it with \type {\leaders} and let it follow by a \type {\hfill} we get this:
+{\darkblue \leaders \vrule height 5mm depth 2mm\hfill}.
+
+When we put on an \type {\hrule} on an empty line the running width kicks in:
+\crlf {\darkblue \hrule height 5mm depth 2mm}\crlf which is a feature that one
+can use in for instance tables. However the fact that we only talk rectangles
+means that there is only a limited repertoire of applications. In order to frame
+some text you need four (disconnected) rules, For a background fill you can use a
+single rule. There is also an application for rules that have height and depth
+but no width: these so called struts that can enforce vertical spacing and
+dimensions.
+
+So what does \LUAMETATEX\ bring to the rules? Because the engine itself is only
+interested in dimensions it's more about passing information to the backend. For
+this we have a few more fields in the rule nodes that can be set from \LUA. This
+permits for instance to hook in \METAPOST\ graphics that adapt like rules. There
+are a few more primitives, one for making struts: they can take their dimensions
+from a character. In math mode they're invisible and don't influence inter-atom
+spacing but still take their role in determining dimensions. Then there are the virtual
+rules that have dimensions (to be used in the backend) but don't contribute in the
+frontend. The \type {\novrule} and \type {\nohrule} do contribute but are ignores in the
+backend so they are cheap alternatives for empty boxes with specific dimensions set.
+
+Some rule subtypes are set by the engine, for instance the math engine marks
+over, under, fraction and radical rules. In \LUA\ one can mark outline, user, box
+and image rules so that node list processors can take their properties into
+accounT when needed, the frontend is only interested in the dimensions and sees
+them as normal rules.
+
+\startbuffer
+\hrule height \strutht depth \strutdp on 0.04tw off 0.01tw \relax
+\stopbuffer
+
+\bgroup \nowhitespace
+\strut\darkblue \getbuffer
+\egroup
+
+Here we have the following call:
+
+\typebuffer
+
+The \type {on} and \type {off} are among the new keys and they do nothing at the
+\TEX\ end. It is the backend that will create the dash pattern. You can achieve
+the same effect with leaders but while here we have a single rule, for a leader
+the engine will make as many rules as are needed for this dash pattern. This is a
+good example of adding little to the fontend in order to make the backend do the
+job. In a similar fashion outlines are delegated. Other tricks involve offsets
+and there is room for some additional features but for now they are on the
+\quotation {Only when I need it.} list, after all we need something to wish for.
+
+Like with glyphs we'll quickly discuss what information travels with the nine
+memory word large rule nodes, but let's first stress that because they are
+basically one of the two content items, it makes a lot of sense to see this blob
+with dimensions as more than rules. The fact that they have dimensions, means
+that routines that look at those, like a packager or line break routine, has only
+glyphs, rules and boxes to take into account when it comes to for instance height
+and depth. Adding a rule subtype is way cheaper than adding a new node type with
+dimensions because that would demand adaption of places where dimensions come
+into play but also \LUA\ code that operates on lists.
+
+This might be a good moment to mention that in \TEX\ engines traditionally fields
+like \nodefield {width}, \nodefield {height} and \nodefield {depth} were kept in
+equivalent places in the memory word set so that macros could be used to access
+them. In \LUAMETATEX\ we went more verbose and every node has its own accessors.
+This permits extending and makes for less potential errors. We leave it to the
+compiler to deal with the (a bit) more code that is needed.
+
+Because we use rules as template for possible extensions but also for some
+control over typesetting we have more fields than the three dimensions. For
+instance we have \nodefield {xoffset} and \nodefield {yoffset} for a displacement
+and \nodefield {left} and \nodefield {right} for margins. Because rules are mode
+sensitive (horizontal vs.\ vertical) these last two can also result in top and
+bottom margins.
+
+We have a \nodefield {rulethickness} that can be used in the backend; the engine
+just passes it around. The same is true for the \nodefield {data} field but some
+of the options in \nodefield {options} are there for the engine.
+
+There are also shared fields, think \nodefield {extra_1} and \nodefield
+{extra_2}, but their convenient names depend on the subtype, so we have
+\nodefield {lineon} and \nodefield {lineoff} for user rules that permit
+implementing a dashed rule. Strut rules provide \nodefield {font} and \nodefield
+{character}. A virtual rule overloads the two margin fields and thereby can
+provide the virtual dimensions while the engine calculates with zero dimensions
+in the usual fields. The \nodefield {discardable} field is there for internal
+purposes (the balancing mechanism). For sure there will be be more in due time.
+
+\stopsection
+
+\startsection[title=Paragraphs]
+
+A lot can be said about paragraphs but we keep it short here. Much more can be
+found in for instance the articles that we wrote on the subject. When you enter
+(or generate) text it will be added to a list (of nodes). That list can become a
+horizontal box, vertical box, or end up in the main vertical list. When we go
+vertical the list will be split in lines and the process is called line breaking.
+Between the lines we can get penalties that tell the machinery how a paragraph of
+lines can be split over page boundaries.
+
+When breaking the engine can use up to three passes: a first pass that uses \type
+{\pretolerance} as criterion, a tolerant pass with hyphenation enabled using
+\type {\tolerance} and an emergency pass that kicks in \type {\emergencystretch}
+when set. In \LUAMETATEX\ we can have additional passes that come online
+depending on criteria and|/|or thresholds; search for \type {\parpasses} to learn
+more about this.
+
+The par builder in \LUAMETATEX\ has more features that users can control and also
+normalized the resulting lines so that later on from the \LUA\ end they can be
+manipulated easier. There are also ways to let embedded inserts, marks and (v)adjusts
+migrate to the outer level. All this takes more runtime than in original \TEX\ but
+in practice one won't really notice this because we gain in other places.
+
+Most or what is new is available as features in \CONTEXT, most noticeably in
+extra keys to \type {\setupalign}. It is also good to know that we have ways to
+hook specific features in what is called \quote {wrapping up paragraph}. Also,
+contrary to traditional \TEX\ we configured \CONTEXT\ to use the mechanism that
+freezes paragraph specific parameters with the current paragraph so that there is
+no (or at least less) interference with grouping.
+
+\stopsection
+
+\startsection[title=Pages]
+
+The page builder is less complex than the par builder as it doesn't really
+optimize. When the target size overflows it backtracks to the last best break.
+The main complication is in handling the inserts: these need to stay with the
+content and therefore can break over a page boundary.
+
+In \LUAMETATEX\ we added only a few features like \type {\pageextragoal} for some
+slack in calculations and we also added the more explicit \type {\pagevsize} and
+a few state access primitives. We might at some point extend this builder a bit
+although the \quote {balance} mechanism (that for instance in \CONTEXT\ is used
+in column sets) already provides a multi-pass solution.
+
+\stopsection
+
+\startsection[title=Alignments]
+
+Alignments are on the one hand an independent builder but because cells in tables
+are kind of independent snippets this mechanism is also very much mixed in the
+parser. The engine is, when it comes to processing content, in text mode, math
+mode and both these states can happen inside alignments. When the alignment
+(group) is finished the table will be constructed from the snippets which happens
+in a few steps because the dimensions can depend on the content of a whole row of
+column.
+
+This mechanism is rather straightforward if we forget about possible look-ahead
+issues in the \quote {preamble parsing} and \quote {determining if we're done}.
+This issue is a bit less problematic in \LUAMETATEX\ because we can define macros
+as being \type {\noaligned} which instructs the scanner to not expand but assume
+we're still doing table (cells).
+
+Compared to \LUATEX\ there are some extras, like setting attributes on cells, as
+well as optimizations, like ignoring zero \type {\tabskip} which makes tables
+that span hundreds of pages and many columns less memory hungry.
+
+\stopsection
+
+\startsection[title=Adjusts]
+
+You can put stuff before and after lines using \type {\vadjust} and at the edges
+using \type {\localleftbox} and alike. Both are seen in the par builder, where the
+boxes contribute to the dimensions and the adjusted material is inserted when the
+paragraph is wrapped up and contributed to the current list. In \LUAMETATEX\ these
+mechanism have been extended so that we can actually uses them in am meaningful
+way.
+
+\stopsection
+
+\startsection[title=Marks]
+
+These signals in the text are used for managing (for instance) running headers
+and a few extra features have been added, like migration to an outer level and
+resets. In \MKIV\ we handled marks in \LUA\ but with \LUAMETATEX\ it makes sense
+to use the engine.
+
+\stopsection
+
+\startsection[title=Inserts]
+
+Inserts are signals that end up in lines and migrate to the outer level, that is
+the main vertical list. An example of usage is footnotes. In the main vertical
+list they are bound to the line they relate to so that the page builder can make
+sure that they end up on the same page. In \LUAMETATEX\ they can bubble up from
+deeply nested boxes. Contrary to the traditional binding of an insert class to
+various registers in \LUAMETATEX\ they can be managed independently which means
+that they have more properties.
+
+\stopsection
+
+\startsection[title=Boxes]
+
+Boxes are one of the most important structures. Eventually the result is a bunch
+of nested boxes with glyphs, kerns, glue and so called whatsits that the backend
+will convert into something, like a \PDF\ file. We have a low level manual on boxes
+and their many properties.
+
+\start \showboxes
+Where glyphs are the visual elements, boxes are invisible wrappers. A line is a
+box that groups (collects) glyphs and spacing but we don't really see that box.
+In this paragraph we enable the \CONTEXT\ visualizer so we do see the boxes when
+you zoom in. Every line is a \type {\hbox} with a height and depth depending on
+the content but a width determined by the \type {\hsize}. Of course we can have
+also boxes in the line, as we see with the \TEX\ logo, where the lowered \type {E}
+is moved down boxed.
+\par \stop
+
+In a traditional engine box nodes have a width, height and depth field for
+dimensions but also a shift field that signal a displacement. Moving a box while
+still keeping its dimensions is used in the math builder and post line break
+routine but in \LUAMETATEX\ we did away with that in most places. The reason is
+that where in original \TEX\ no one is confronted with these engine
+imposed|/|applied shifts, in an opened up \LUAMETATEX\ it can be confusing. Of
+course the field is still there, also because it's used in \type {\moveleft} and
+friends. In addition we can set offsets, orientation in four ways, anchor the box
+on corners and such. As a result we have more keywords to check when we set a box
+which actually was one of the reasons to optimize the keyword scanner.
+
+\stopsection
+
+\startsection[title=Language]
+
+The language model in \LUAMETATEX\ is similar to \LUATEX. A glyph node has a
+language field that is used by the engine for hyphenation. There are some fields
+in the glyph node that carry states related to hyphenation and in \LUAMETATEX\ we
+have more control options. There are some text codes that one can see as related
+to languages, like \type {\lccode} and \type {\uccode} and even \type {\sfcode}
+but especially in a \UNICODE\ environment the macro package likely will do some
+independent of these shared vectors.
+
+Hyphenation patterns are loaded at runtime which saves on the size of the format
+file; after all we seldom need more than one, and pre-loading dozens makes little
+sense. The hyphenate and exception handlers provide features for compound words
+and penalties and also have callbacks to add additional functionality. Users will
+not directly mess with these and trust the macro package to do the right thing.
+
+\stopsection
+
+\startsection[title=Math]
+
+Plenty has been written about the multi-year project of opening up and extending
+the math engine. Opening up and providing full control is part of supporting and
+experimenting with \OPENTYPE\ math fonts but we already discussed this in a
+previous section. Another aspect of opening up is making hard coded properties
+configureable, even if that feature will hardly be used, simply because the
+built-in defaults make sense. Then there is all kind of control over rendering
+that can be controlled by keywords to the math specific elements like atoms,
+fractions, operators, accents, radicals and fences.
+
+Because traditional fonts are phased out in favour of (often flawed) \OPENTYPE\
+variants much of what is new is also controlled by fonts, be it that we have our
+own extensions. In \CONTEXT\ mathfonts are tweaked to fit our model. Inter atom
+spacing, penalties, discretionaries, continuation scripts (think multiscripts,
+pre and post), additional classes, dictionaries, linebreaks, carrying properties
+over math groups, are all features that make it possible to renderer more precise
+math without the need for manual intervention. It often looks, for instance from
+posts on support platforms, that the more or less standard math has to come with
+tweaking your source; it has become an accepted practice. In \CONTEXT\ we always
+had structure and we added some more of that and because the math engine carries
+more information around we could eventually simplify some code otherwise done in
+\LUA.
+
+By looking at what \CONTEXT\ actually needs, we could decide to strip down the
+math engine (old as well as new features). We can also decide to eventually just
+assume wide fonts to be used and drop old font support. After all, because one
+has to load the fonts with \LUA, it's not hard to map traditional fonts to
+(extended) \OPENTYPE\ alternatives, which is actually what we do anyway with for
+instance Antykwa.
+
+\stopsection
+
+\startsection[title=Programming]
+
+There are some major extensions to the way one can program macros, of which we
+mention a few:
+
+\startitemize[packed]
+
+\startitem
+    Macros can have more complex definitions, for instance optional arguments,
+    mandate braces, optional spaces between arguments.
+\stopitem
+
+\startitem
+    We have more conditionals and conditionals can be less nested by using \type
+    {\orelse} and continued tests at the same nesting level.
+\stopitem
+
+\startitem
+    We have various kind of native loops which makes for more advanced fully
+    expandable solutions.
+\stopitem
+
+\startitem
+    There are additional, more advanced, expression scanners for numbers
+    (integers) and dimensions. In fact, when a value is needed these scanners can
+    kick in (curly braced values).
+\stopitem
+
+\startitem
+    There are user units that hook into registers and other properties. Of course
+    this feature is rather macro package dependent.
+\stopitem
+
+\startitem
+    We can have local expansion, a.k.a.\ \quote {local control} which means that
+    the main loops basically acts as a function.
+\stopitem
+
+\startitem
+    There are more (powerful) input parsers at the \LUA\ end which helps making
+    extensions to the syntax without bloating the already large set of
+    primitives.
+\stopitem
+
+\startitem
+    Macros can have properties that make them more robust in alignment and
+    expansion contexts and can be protected against overloading.
+\stopitem
+
+\stopitemize
+
+There are many small extensions that are the result of years of experience with
+programming in the \TEX\ language and accumulated observations. Of course most is
+driven by \CONTEXT\ development. Some of the new programming features are
+explained below.
+
+\stopsection
+
+\startsection[title=Protection]
+
+The idea behind \TEX\ is that users define macros. However, when they do so in
+the perspective of a macro package there is the danger that core functionality
+can be overwritten. Now, one can of course make all primitives less accessible,
+for instance by some prefix. But that makes no real sense for features that
+belong to the language. When users use Camel Case for their names they're unlikely
+to run into issues, so while internal macros are actually prefixed, we don't
+do that with the primitives, so you can write code that looks \TEX.
+
+Over time \CONTEXT\ has been ridiculed by non users for prefixing with \type
+{\do} or \type {\dodo} but that's by folk who love long (cryptic) names with many
+underscores and other inaccessible characters. The way we protect users from
+accidental overloading is by using the \LUAMETATEX\ overload protection system.
+Macros (and primitives) can be tagged in way so that the engine can issue warning
+or even error in case of an undesirable definition.
+
+There is of course some overhead involved in for instance every \type {\def} or
+\type {\let} but it is little and the engine is fast anyway.
+
+\stopsection
+
+\startsection[title=Optimization]
+
+There are many places where the engine could be optimized without getting
+obscure. One reason is that the memory layout is somewhat different because we
+snap to 8, 16, 32 or 64 bits and the engine being a \UNICODE\ capable one already
+has more memory available in some places than what was needed. Also, knowing
+usage patterns, it was possible to identify possible bottlenecks and widen the
+necks.
+
+Furthermore, it was possible to improve input handling, logging, save stack
+usage, keyword parsing, expressions, and much more. On the other hand nodes
+became larger so there we loose some. The \LUAMETATEX\ engine is faster than
+\LUATEX, although some of the gain is lost on the fact that one needs to use
+\LUA\ backend.
+
+\stopsection
+
+\startsection[title=Input]
+
+The input can come from files, token lists, macros and \LUA\ which means many
+places. When it comes from \LUA\ it can be tokens, nodes, string, and each has
+its special way of handling and the engine has to keep track of this when it
+accumulated the input that pops up after a \LUA\ call. This is done as efficient
+as possible without sacrificing performance. The fact that we have \UTF\ should
+not have too much impact.
+
+\stopsection
+
+\startsection[title=Nesting]
+
+When you enter a group a stack boundary is set and when some value changes the
+original value is pushed on the stack. After leaving the group values are
+restored. The engine tries to avoid redundant actions which improves memory usage
+and runtime.
+
+Every macro expansion, opened file, expanded token list, etc.\ pushes the input
+stack and that comes with overhead. Again we have tried to minimize the impact
+and thereby gain a bit over \LUATEX.
+
+Other stacks like those used by math, alignment, conditionals, expressions etc.\
+have also been improved some. On the other hand, by unweaving some shared code
+there can be a price to pay, but as with everything usage patterns indicate no
+penalty here.
+
+\stopsection
+
+\startsection[title=Conditions]
+
+We already had more conditionals in \LUATEX\ but again the repertoire of
+conditionals has been extended. This permits us to remove some middle-layer
+helpers and stay closer to the core language. It also helps to improve
+performance.
+
+Another important addition has been \type {\orelse} than permits us to write test
+in a way similar to what other language provide with for instance \type {elseif}
+or \type {else if}.
+
+\stopsection
+
+\startsection[title=Macros]
+
+Expanding macros happens a lot especially in a more complex macro package. This
+means that adding features in that area can have a large impact on runtime.
+Nevertheless the argument parser now provides a few handfuls of variants in
+picking up arguments with out noticeable degradation, especially because these
+new features can gain performance.
+
+At the same time there have been some optimizations in storing macro related
+states, checking and accessing parameters. There are additional (internal)
+classes of macros that make for a more natural implementation; for instance
+\type {\protected} macros are now first class commands.
+
+\stopsection
+
+\startsection[title=Keywords]
+
+Some primitives accept one or more keywords and \LUAMETATEX\ adds some more. In
+order to deal with this efficiently the keyword scanner has been optimized, where
+even the context was taken into account. As a result the scanner was quite a bit
+faster. This kind of optimization was a graduate process the eventually ended up
+in what we have now. In traditional \TEX\ (and also \LUATEX) the order of
+keywords is sometimes mixed and sometimes prescribed. In most cases only one
+occurrence is permitted. So, for instance, this is valid in \LUATEX:
+
+\starttyping
+\hbox attr 123 456 attr 123 456 spread 10cm { }
+\hrule width 10cm depth 3mm
+\hskip 3pt plus 2pt minus 1pt
+\stoptyping
+
+The \type {attr} comes before the \type {spread}, rules can have multiple mixed
+dimension specifiers, and in glue the optional \type {minus} part always comes
+last. The last two commands are famous for look ahead side effects which is why
+macro packages will end them with something not keyword, like \type {\relax},
+when needed.
+
+In \LUAMETATEX\ the following is okay. Watch the few more keywords in box and
+rule specifications.
+
+\starttyping
+\hbox reverse to 10cm attr 123 456 orientation 4 xoffset 10pt spread 10cm { }
+\hrule xoffset 10pt width 10cm depth 3mm
+\hskip 3pt minus 1pt plus 2pt
+\stoptyping
+
+Here the order is not prescribed and, as demonstrated with the box specifier, for
+instance dimensions (specified by \type {to} or \type {spread} can be overloaded
+by later settings. In case you wonder if that breaks compatibility: in some way
+it does but bad or sloppy keyword usage breaks a run anyway. For instance \type
+{minuscule} results in \type {minus} with no dimension being seen. So, in the end
+the user should not noticed it and when a user does, the macro package already
+had an issue that had to be fixed.
+
+\stopsection
+
+\startsection[title=Directions]
+
+The directional model in \LUAMETATEX\ is a simplified version the the model used
+in \LUATEX. In fact, not much is happening at all: we only register a change in
+direction. The approach is that we try to make node lists balanced but also try
+to avoid some side effects. What happens is quite intuitive if we forget about
+spaces (turned into glue) but even there what happens makes sense if you look at
+it in detail. However that logic makes in|-|group switching kind of useless when
+no properly nested grouping is used: switching from right to left several times
+nested, results in spacing ending up after each other due to nested mirroring. Of
+course a sane macro package will manage this for the user but here we are
+discussing the low level injection of directional information.
+
+This is what happens:
+
+\starttyping
+\textdirection 1 nur {\textdirection 0 run \textdirection 1 NUR} nur
+\stoptyping
+
+This becomes stepwise:
+
+\startnarrower
+\starttyping
+injected: [push 1]nur {[push 0]run [push 1]NUR} nur
+balanced: [push 1]nur {[push 0]run [pop 0][push 1]NUR[pop 1]} nur[pop 0]
+result  : run {RUNrun } run
+\stoptyping
+\stopnarrower
+
+And this:
+
+\starttyping
+\textdirection 1 nur {nur \textdirection 0 run \textdirection 1 NUR} nur
+\stoptyping
+
+becomes:
+
+\startnarrower
+\starttyping
+injected: [+TRT]nur {nur [+TLT]run [+TRT]NUR} nur
+balanced: [+TRT]nur {nur [+TLT]run [-TLT][+TRT]NUR[-TRT]} nur[-TRT]
+result  : run {run RUNrun } run
+\stoptyping
+\stopnarrower
+
+Now, in the following examples watch where we put the braces:
+
+\startbuffer
+\textdirection 1 nur {{\textdirection 0 run} {\textdirection 1 NUR}} nur
+\stopbuffer
+
+\typebuffer
+
+This becomes:
+
+\startnarrower
+\getbuffer
+\stopnarrower
+
+Compare this to:
+
+\startbuffer
+\textdirection 1 nur {{\textdirection 0 run }{\textdirection 1 NUR}} nur
+\stopbuffer
+
+\typebuffer
+
+Which renders as:
+
+\startnarrower
+\getbuffer
+\stopnarrower
+
+So how do we deal with the next?
+
+\startbuffer
+\def\ltr{\textdirection 0\relax}
+\def\rtl{\textdirection 1\relax}
+
+run {\rtl nur {\ltr run \rtl NUR \ltr run \rtl NUR} nur}
+run {\ltr run {\rtl nur \ltr RUN \rtl nur \ltr RUN} run}
+\stopbuffer
+
+\typebuffer
+
+It gets typeset as:
+
+\startnarrower
+\startlines
+\getbuffer
+\stoplines
+\stopnarrower
+
+We could define the two helpers to look back, pick up a skip, remove it and
+inject it after the dir node. But that way we loose the subtype information that
+for some applications can be handy to be kept as|-|is. This is why we now have a
+variant of \prm {textdirection} which injects the balanced node before the skip.
+Instead of the previous definition we can use:
+
+\startbuffer[def]
+\def\ltr{\linedirection 0\relax}
+\def\rtl{\linedirection 1\relax}
+\stopbuffer
+
+\typebuffer[def]
+
+and this time:
+
+\startbuffer[txt]
+run {\rtl nur {\ltr run \rtl NUR \ltr run \rtl NUR} nur}
+run {\ltr run {\rtl nur \ltr RUN \rtl nur \ltr RUN} run}
+\stopbuffer
+
+\typebuffer[txt]
+
+comes out as a properly spaced:
+
+\startnarrower
+\startlines
+\getbuffer[def,txt]
+\stoplines
+\stopnarrower
+
+Anything more complex that this, like combination of skips and penalties, or
+kerns, should be handled in the input or macro package because there is no way we
+can predict the expected behavior. In fact, the \prm {linedirection} is just a
+convenience extra which could also have been implemented using node list parsing.
+
+Directions are complicated by the fact that they often need to work over groups
+so a separate grouping related stack is used. A side effect is that there can be
+paragraphs with only a local par node followed by direction synchronization
+nodes. Paragraphs like that are seen as empty paragraphs and therefore ignored.
+Because \prm {noindent} doesn't inject anything but a \prm {indent} injects
+an box, paragraphs with only an indent and directions are handles and paragraphs
+with content. When indentation is normalized a paragraph with an indentation
+skip is seen as content.
+
+\stopsection
+
+\startsection[title=Hooks]
+
+In many places callbacks are possible that can be used for implementing
+extensions or extensive tracing. Of course usage is macro package dependent and
+users should be aware of possible interferences when callbacks are chained. There
+are ways to block changes. Compared to \LUATEX, some callbacks are mandate, like
+reading from files or dealing with (and even loading) fonts. Some callbacks can
+replace built-in functionality but that will probably seldom be done.
+
+Although officially callbacks are the way to extend the engine, we did in many
+places add functionality, simply because it integrates better in already complex
+features (like the par builder) and it is also faster.
+
+\stopsection
+
+\startsection[title=Expressions]
+
+The \ETEX\ expression scanner has been optimized and extended with a \type
+{\divide} compatible operator. In addition we have a scanner with more features
+and another (experimental) one that does operator priorities proper (and
+internally uses an reverse Polish stack approach). When a number or dimension is
+expected a braced value is parsed as extended expression.
+
+\stopsection
+
+\startsection[title=Units]
+
+The familiar \TEX\ units like \type {pt} and \type {cm} are supported but since
+the 2021 \CONTEXT\ meeting we also support the Knuthian Potrzebie, cf.\ \typ
+{en.wikipedia.org/wiki/Potrzebie}. The two character acronym is \type {dk}. One
+\type {dk} is 6.43985pt. This unit is particularly suited for offsets in framed
+examples.
+
+In 2023 we added the Edith (\type {es}) and Tove (\type {ts}) as metric
+replacements for the inch (\type {in}). As with the \type {dk} more background
+information can be found in documents that come with \CONTEXT\ and user group
+journals. The \type {eu} unit starts out as one \type {es} but can be scaled with
+\prm {eufactor}.
+
+\startbuffer
+\localcontrolledloop -5 55 5 {
+    \eufactor=\currentloopiterator
+    \dontleavehmode\strut
+    \vrule height .1es depth .25ts width 1dk\relax\quad
+    \vrule height .1es depth .25ts width 1eu\relax\quad
+    \the\currentloopiterator
+    \par
+}
+\stopbuffer
+
+\typebuffer
+
+This example code shows all four new units. Watch how \prm {eufactor} is clipped
+to a value in the range $1-50$. The default factor of $10$ makes the European
+Unit equivalent to ten Toves or one Edith.
+
+\startpacked
+\startcolor[darkgray]
+\getbuffer
+\stopcolor
+\stoppacked
+
+In addition to these there can be user units but because these are macro package
+dependent they are not discussed here.
+
+\stopsection
+
+\startsection[title=Local control]
+
+There are a few new primitives that permit what we call local controlled
+expansion. This permits for instance expanding non expandable macros and even
+typesetting inside an expansion context like \type {\edef}. Regular \TEX has a
+main loop to where it returns after every primitive action, but local control let
+the engine go into a nested main loop.
+
+\stopsection
+
+\startsection[title=Overload protection]
+
+Protection is achieved via prefixes. Depending on the value of the \prm
+{overloadmode} variable warnings or errors will be triggered. Examples of usage
+can be found in some documents that come with \CONTEXT, so here we just stick to
+the basics.
+
+\starttyping
+\mutable  \def\foo{...}
+\immutable\def\foo{...}
+\permanent\def\foo{...}
+\frozen   \def\foo{...}
+\aliased  \def\foo{...}
+\stoptyping
+
+A \prm {mutable} macro can always be changed contrary to an \prm {immutable} one.
+For instance a macro that acts as a variable is normally \prm {mutable}, while a
+constant can best be immutable. It makes sense to define a public core macro as
+\prm {permanent}. Primitives start out a \prm {permanent} ones but with a primitive
+property instead.
+
+\startbuffer
+          \let\relaxone  \relax 1: \meaningfull\relaxone
+\aliased  \let\relaxtwo  \relax 2: \meaningfull\relaxtwo
+\permanent\let\relaxthree\relax 3: \meaningfull\relaxthree
+\stopbuffer
+
+\typebuffer
+
+The \prm {meaningfull} primitive is like \prm {meaning} but report the
+properties too. The \prm {meaningless} companion reports the body of a macro.
+Anyway, this typesets:
+
+\startlines \tttf \getbuffer \stoplines
+
+So, the \prm {aliased} prefix copies the properties. Keep in mind that a macro
+package can redefine primitives, but \prm {relax} is an unlikely candidate.
+
+There is an extra prefix \prm {noaligned} that flags a macro as being valid
+for \prm {noalign} compatible usage (which means that the body must contain that
+one. The idea is that we then can do this:
+
+\starttyping
+\permanent\protected\noaligned\def\foo{\noalign{...}} % \foo is unexpandable
+\stoptyping
+
+that is: we can have protected macros that don't trigger an error in the parser
+where there is a look ahead for \prm {noalign} which is why normally protection
+doesn't work well. So: we have macro flagged as permanent (overload protection),
+being protected (that is, not expandable by default) and a valid equivalent of
+the noalign primitive. Of course we can also apply the \prm {global} and \prm
+{tolerant} prefixes here. The complete repertoire of extra prefixes is:
+
+\starttabulate
+\FL
+\NC \type {frozen}     \NC a macro that has to be redefined in a managed way \NC \NR
+\NC \type {permanent}  \NC a macro that had better not be redefined \NC \NR
+\NC \type {primitive}  \NC a primitive that normally will not be adapted \NC \NR
+\NC \type {immutable}  \NC a macro or quantity that cannot be changed, it is a constant \NC \NR
+\NC \type {mutable}    \NC a macro that can be changed no matter how well protected it is \NC \NR
+\ML
+\NC \type {instance}   \NC a macro marked as (for instance) be generated by an interface \NC \NR
+\ML
+\NC \type {noaligned}  \NC the macro becomes acceptable as \type {\noalign} alias \NC \NR
+\ML
+\NC \type {overloaded} \NC when permitted the flags will be adapted \NC \NR
+\NC \type {enforced}   \NC all is permitted (but only in zero mode or ini mode) \NC \NR
+\NC \type {aliased}    \NC the macro gets the same flags as the original \NC \NR
+\ML
+\NC \type {untraced}   \NC the macro gets a different treatment in tracing \NC \NR
+\LL
+\stoptabulate
+
+The not yet discussed \prm {instance} is just a flag with no special meaning
+which can be used as classifier. The \prm {frozen} also protects against overload
+which brings amount of blockers to four.
+
+To what extent the engine will complain when a property is changed in a way that
+violates the flags depends on the parameter \prm {overloadmode}. When this
+parameter is set to zero no checking takes place. More interesting are values
+larger than zero. If that is the case, when a control sequence is flagged as
+mutable, it is always permitted to change. When it is set to immutable one can
+never change it. The other flags determine the kind of checking done. Currently
+the following overload values are used:
+
+\starttabulate[|l|l|c|c|c|c|c|]
+    \NC   \NC         \BC immutable \BC permanent \BC primitive \BC frozen \BC instance \NC \NR
+    \NC 1 \NC warning \NC \star     \NC \star     \NC \star     \NC        \NC          \NC \NR
+    \NC 2 \NC error   \NC \star     \NC \star     \NC \star     \NC        \NC          \NC \NR
+    \NC 3 \NC warning \NC \star     \NC \star     \NC \star     \NC \star  \NC          \NC \NR
+    \NC 4 \NC error   \NC \star     \NC \star     \NC \star     \NC \star  \NC          \NC \NR
+    \NC 5 \NC warning \NC \star     \NC \star     \NC \star     \NC \star  \NC \star    \NC \NR
+    \NC 6 \NC error   \NC \star     \NC \star     \NC \star     \NC \star  \NC \star    \NC \NR
+\stoptabulate
+
+The even values (except zero) will abort the run. A value of 255 will freeze this
+parameter. At level five and above the \prm {instance} flag is also checked but
+no drastic action takes place. We use this to signal to the user that a specific
+instance is redefined (of course the definition macros can check for that too).
+
+The \prm {overloaded} prefix can be used to overload a frozen macro. The \prm
+{enforced} is more powerful and forces an overload but that prefix is only
+effective in ini mode or when it's embedded in the body of a macro or token list
+at ini time unless of course at runtime the mode is zero.
+
+So far for a short explanation. More details can be found in the \CONTEXT\
+documentation where we can discuss it in a more relevant perspective. It must be
+noted that this feature only makes sense a controlled situation, that is: user
+modules or macros of unpredictable origin will probably suffer from warnings and
+errors when de mode is set to non zero. In \CONTEXT\ we're okay unless of course
+users redefine instances but there a warning or error is kind of welcome.
+
+There is an extra prefix \prm {untraced} that will suppress the meaning when
+tracing so that the macro looks more like a primitive. It is still somewhat
+experimental so what gets displayed might change.
+
+The \prm {letfrozen}, \prm {unletfrozen}, \prm {letprotected} and \prm
+{unletprotected} primitives do as their names advertise. Of course the \prm
+{overloadmode} must be set so that it is permitted.
+
+\stopsection
+
+\startsection[reference=specifications,title=Specifications]
+
+We need to discuss specifications and this will be a bit more detailed in terms
+of mentioning primitives. In original \TEX\ we have \prm {parshape}. This is an
+array of indentations and widths with a variable number of entries. The engine
+manages an array of memory words from which it can take slices called nodes. The
+start of such a slice is a node pointer (actually an index in that memory array).
+A paragraph shape is stored in such a slice. Once it's no longer used the node is
+returned to a pool and can be used again later. When the engines runs low on
+memory it can combine pooled nodes and these shape nodes are a good candidate for
+that as they can be large. But it is suboptimal. The \ETEX\ engine introduced
+more arrays, like \prm {widowpenalties} and in
+
+\LUAMETATEX\ we added for instance \prm {parpasses}. We also extended the
+\LUATEX\ initial par node with many more fields, and some of these point to these
+variable nodes, for instance \prm {linepenalties} or \prm {orphanpenalties} and
+we make copy of these, unless, as we will see, they are defined as constant. The
+more extensive usage of these variables nodes made for a change in approach.
+These arrays are now small fixed size nodes with a pointer to a dynamically
+allocated array of data. This comes at some cost but on a modern machine that is
+not much. The advantage is that we are less likely to run our of node memory. The
+generic node and mechanism that manages are called specifications.
+
+Original \TEX\ has only \prm {parshape}, \ETEX\ added four and \LUAMETATEX\ went
+on adding:
+
+\starttabulate[|||]
+\FL
+\NC \type {\parshape}                \NC dimension pairs \NC \NR
+\ML
+\NC \type {\interlinepenalties}      \NC integer pairs \NC \NR
+\NC \type {\clubpenalties}           \NC integer pairs \NC \NR
+\NC \type {\widowpenalties}          \NC integer pairs \NC \NR
+\NC \type {\displaywidowpenalties}   \NC integer pairs \NC \NR
+\ML
+\NC \type {\adjacentdemerits}        \NC integer pair \NC \NR
+\NC \type {\balancefinalpenalties}   \NC integer pairs \NC \NR
+\NC \type {\balancepasses}           \NC multiple field sets \NC \NR
+\NC \type {\balanceshape}            \NC multiple field sets \NC \NR
+\NC \type {\brokenpenalties}         \NC integer pairs \NC \NR
+\NC \type {\fitnessclasses}          \NC integers \NC \NR
+\NC \type {\mathbackwardpenalties}   \NC integer pairs \NC \NR
+\NC \type {\mathforwardpenalties}    \NC integer pairs \NC \NR
+\NC \type {\orphanlinefactors}       \NC integers \NC \NR
+\NC \type {\orphanpenalties}         \NC integer pairs \NC \NR
+\NC \type {\parpassesexception}      \NC multiple field sets \NC \NR
+\NC \type {\parpasses}               \NC multiple field sets \NC \NR
+\NC \type {\toddlerpenalties}        \NC integer pairs \NC \NR
+\ML
+\NC \type {\specificationdef \count} \NC integer (pairs) \NC \NR
+\NC \type {\specificationdef \dimen} \NC dimension (pairs) \NC \NR
+\NC \type {\specificationdef \float} \NC posit (pairs) \NC \NR
+\LL
+\stoptabulate
+
+We set these specification according to their purpose but it always starts
+with a counter indicating how many entries to expect, where zero resets the
+specification.
+
+\starttyping[option=TEX]
+\somespecification
+   count
+   [options]
+   one or more [single|pair|fieldset]
+\stoptyping
+
+We can't set individual fields, it always has to be a whole specification, but we
+can get fields values. In \ETEX\ we have \typ {\parshapelength}, \typ
+{\parshapeindent} and (weirdly named) \typ {\parshapedimen} which best can be
+aliased to \typ {\parshapewidth}. Of course one can wonder why these are needed.
+For balancing shapes we have \typ {\balanceshapevsize}, \typ
+{\balanceshapetopspace} and \typ {\balanceshapebottomspace}. The passes don't
+have such introspection helpers. In order not to drown in primitives just for the
+sake of tracing we added a few generic accessor helpers that can be used like:
+
+\starttyping[option=TEX]
+\widowpenalties 5 option 2 100 150 200 250 300 350 400 450 500 550
+\the \specificationcount   \widowpenalties    % here 5
+\the \specificationoptions \widowpenalties    % bit 2 set when double
+\the \specificationfirst   \widowpenalties  3 % penalty 3 left  (300 )
+\the \specificationsecond  \widowpenalties  3 % penalty 3 right (350)
+\stoptyping
+
+We use these primitives to implement a serializer in \CONTEXT\ so that we can
+say:
+
+\startbuffer
+\parshape 3 0mm \hsize 20mm {\hsize-20mm} 30mm {\hsize-30mm} \relax
+\thespecification\parshape
+\stopbuffer
+
+\typebuffer[option=TEX]
+
+and get:
+
+{\tttf \getbuffer}.
+
+When \type {\the} is applied to a specification with double entries you
+need to pass an extra subindex. Per tradition \typ {\the \widowpenalties}
+takes an integer argument as index into the array. A zero value returns the
+size. A minus one will skip the index scanning and when we have a left- and
+right page penalty set we need to pass the subindex. The minus one permits us
+to overload the singular ones:
+
+\start\small
+\starttyping[option=TEX]
+\permanent\protected\untraced\def\widowpenalty       {\widowpenalties       \minusone} % once
+\permanent\protected\untraced\def\clubpenalty        {\clubpenalties        \minusone} % once
+\permanent\protected\untraced\def\displaywidowpenalty{\displaywidowpenalties\minusone} % once
+\permanent\protected\untraced\def\brokenpenalty      {\brokenpenalties      \minusone} % singular anyway
+\permanent\protected\untraced\def\orphanpenalty      {\orphanpenalties      \minusone} % once
+\permanent\protected\untraced\def\toddlerpenalty     {\toddlerpenalties     \minusone} % once
+\permanent\protected\untraced\def\interlinepenalty   {\interlinepenalties   \plusone } % repeats
+\permanent\protected\untraced\def\adjdemerits        {\adjacentdemerits     \minusone}
+\stoptyping
+\stop
+
+And we can actually at some point to decide to drop the \ETEX\ ones:
+
+\start\small
+\starttyping[option=TEX]
+\permanent\protected\untraced\def\parshapelength{\specificationcount \parshape}
+\permanent\protected\untraced\def\parshapeindent{\specificationfirst \parshape}
+\permanent\protected\untraced\def\parshapewidth {\specificationsecond\parshape}
+
+\aliased\let\parshapedimen\parshapewidth % weird etex name
+\stoptyping
+\stop
+
+\stopsection
+
+\startsection[title=Tracing]
+
+There is are more tracing options, like in math, alignments and inserts, and
+tracing can be more detailed. This is partly a aide effect of the need for
+exploring new features. Tracing is not always compatible, if only because there
+are more possibilities, for instance in the way macros are defined and can handle
+arguments.
+
+\stopsection
+
+\stopdocument
+
+% \setupbodyfont[pagella]
+% \starttext
+% \definefont[TestA][SerifBold*default,oldstyle]
+% \def\TestB  {{\infofont[\the\glyphdatafield]}}
+% \def\TestC#1{{\infofont(#1)}\csname#1\endcsname}
+% \bgroup
+%     \crlf abc 123\crlf
+%     \bgroup
+%         \TestA
+%         \TestB
+%         \crlf \strut \kern10pt abc 123 \crlf
+%     \egroup
+%     \TestB
+%     \TestC{smallcaps}%
+%     \TestB
+%     \crlf abc 123 \crlf
+%     \bgroup
+%         \TestA
+%         \TestB
+%         \crlf \strut \kern10pt abc 123 \crlf
+%     \egroup
+%     \TestB
+%     \bgroup
+%         \TestC{oldstyle}%
+%         \TestB
+%         \crlf \strut \kern10pt abc 123 \crlf
+%     \egroup
+%     \TestB
+%     \crlf abc 123 \crlf
+% \egroup
+% \stoptext
