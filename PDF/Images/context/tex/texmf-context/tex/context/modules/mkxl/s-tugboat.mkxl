@@ -1,7 +1,0 @@
-\startmodule[tugboat]
-
-\usemodule[tugboat-columns]
-\usemodule[tugboat-logos]
-\usemodule[tugboat-exceptions]
-
-\stopmodule
