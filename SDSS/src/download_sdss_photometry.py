@@ -14,15 +14,18 @@ El script:
 4. Guarda todo en un CSV para análisis
 """
 
+import argparse
 import csv
 import time
 import urllib.request
 import urllib.parse
 import json
+from pathlib import Path
 
 # Configuración
-INPUT_FILE = '/home/claude/sdss_lenses_coords.csv'
-OUTPUT_FILE = '/home/claude/sdss_lenses_photometry.csv'
+SCRIPT_DIR = Path(__file__).resolve().parent
+INPUT_FILE = SCRIPT_DIR / 'sdss_lenses_coords.csv'
+OUTPUT_FILE = Path.cwd() / 'sdss_lenses_photometry.csv'
 SEARCH_RADIUS = 5  # arcsec - radio de búsqueda alrededor de cada lente
 
 # URL del servidor SDSS SkyServer
@@ -50,7 +53,28 @@ def query_sdss_photometry(ra, dec, radius_arcsec=5):
         print(f"  Error en query: {e}")
         return None
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Descarga fotometria ugriz de SDSS para lentes SDSS."
+    )
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Cantidad maxima de lentes a procesar (por ejemplo, 10).",
+    )
+    group.add_argument(
+        "--row",
+        type=int,
+        default=None,
+        help="Procesa solo la fila indicada (1-based).",
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
     print("=" * 60)
     print("DESCARGA DE FOTOMETRÍA SDSS PARA LENTES GRAVITACIONALES")
     print("Proyecto: GRF-RGB / ThöEv-RθB")
@@ -64,6 +88,17 @@ def main():
         for row in reader:
             lenses.append(row)
     
+    if args.row is not None:
+        if args.row <= 0:
+            raise ValueError("--row debe ser un entero positivo")
+        if args.row > len(lenses):
+            raise ValueError("--row excede el total de lentes")
+        lenses = [lenses[args.row - 1]]
+    elif args.limit is not None:
+        if args.limit <= 0:
+            raise ValueError("--limit debe ser un entero positivo")
+        lenses = lenses[: args.limit]
+
     print(f"Lentes a procesar: {len(lenses)}")
     print(f"Radio de búsqueda: {SEARCH_RADIUS} arcsec")
     print()
